@@ -1,51 +1,88 @@
-# Enabling Dual-Purpose Pins as Regular I/O in Gowin IDE
+# SSPI as I/O Configuration Guide
 
-## Problem
+## What is SSPI?
 
-When using certain FPGA pins that have dual purpose (e.g., SSPI, JTAG, MODE), Gowin Place & Route will reject them with errors:
+SSPI (Serial System Programming Interface) is a set of dedicated pins on Gowin
+FPGAs used for device programming and configuration via JTAG+UART. On boards
+like the Sipeed Tang Primer 20K/25K, the SSPI pins are hardwired to the
+onboard crystal oscillator or programming logic.
 
+**Default behavior:** SSPI pins are **reserved** for configuration and CANNOT
+be used as general-purpose I/O (GPIO) unless explicitly reconfigured.
+
+**Common error:** `Error (PR2017)` when constraining SSPI pins as regular I/O
+without enabling the dual-purpose pin setting.
+
+---
+
+## GUI Method
+
+`Project → Configuration → Dual-Purpose Pin → ☑ Use SSPI as Regular IO`
+
+Also check related options:
+- **"Use JTAG as Regular IO"** — if you need JTAG pins as GPIO
+- **"Use CPU as Regular IO"** — on SoC devices (GW1NS-4C, GW5AS-25) with
+  embedded ARM/RISC-V cores
+
+---
+
+## Tcl Method (gw_sh CLI)
+
+```tcl
+# Enable SSPI pins as general-purpose I/O
+set_option -use_sspi_as_gpio 1
+
+# Disable (default)
+set_option -use_sspi_as_gpio 0
 ```
-ERROR (PR2017) : 'lcd_r[2]' cannot be placed according to constraint, for the location is a dedicated pin (SSPI)
-ERROR (PR2028) : The constrained location is useless in current package
+
+Place this **before** `run all` / `run pnr` in your build script.
+
+### All Dual-Purpose Pin Options (Tcl)
+
+```tcl
+set_option -use_sspi_as_gpio      <0|1>   # SSPI pins as GPIO
+set_option -use_mspi_as_gpio      <0|1>   # MSPI pins as GPIO
+set_option -use_jtag_as_gpio      <0|1>   # JTAG pins as GPIO
+set_option -use_ready_as_gpio     <0|1>   # READY pin as GPIO
+set_option -use_done_as_gpio      <0|1>   # DONE pin as GPIO
+set_option -use_reconfign_as_gpio <0|1>   # RECONFIG_N pin as GPIO
+set_option -use_i2c_as_gpio       <0|1>   # I2C pins as GPIO
 ```
 
-This happens because N9 (IOR36[B]) defaults to SSPI_CS_N/D0 function and must be explicitly reconfigured as a regular I/O.
+### Alternative format (device.cfg style)
 
-## Solution
+```tcl
+set SSPI regular_io = true     # Enable
+set SSPI regular_io = false    # Disable
+```
 
-### Method 1: Gowin IDE GUI (Recommended)
+---
 
-1. Open your project in Gowin IDE
-2. Click **Project** in the top menu bar
-3. Select **Configuration** from the dropdown
-4. In the left panel, navigate to **Place & Route** → **Dual-Purpose Pin**
-5. Locate the pin that needs to be reconfigured:
-   - For Tang Primer 20K Dock `lcd_r[2]`: pin **N9** (IOR36[B], SSPI_CS_N/D0)
-6. Change its setting from the dedicated function to **Regular I/O** (or `ENABLE` / `AS_USER_PIN`)
-7. Click **OK** and re-run Place & Route
+## Impact
 
-![Dual Purpose Pin Configuration](https://raw.githubusercontent.com/sipeed/TangPrimer-20K-example/main/.assets/rp2017.png)
+Enabling SSPI as GPIO repurposes these pins:
+- `SSPI_CS_N` → GPIO
+- `SSPI_CLK`  → GPIO
+- `SI`        → GPIO
+- `SO`        → GPIO
+- `CLKHOLD_N` → GPIO
 
-### Method 2: Project File Configuration
+**Caveat:** After setting SSPI pins as GPIO, you may lose the ability to
+program the device via the standard background programming mode. For
+development, use direct JTAG programming or an external programmer instead.
 
-Alternatively, the setting is stored in the `.prj` project file. You can add the pin to the dual-purpose enable list manually.
+---
 
-## Common Dual-Purpose Pins on GW2A-LV18PG256C8/I7 (Tang Primer 20K)
+## Example: sin_rgb.tcl
 
-| Pin  | Default Function | Location | Used By         |
-|------|-----------------|----------|-----------------|
-| N9   | SSPI_CS_N/D0    | IOR36[B] | lcd_r[2]        |
-| R9   | FASTRD_N/D3     | IOR35[A] | lcd_clk          |
-| T10  | SI/D2           | IOR35[B] | Reset (RST_N)   |
-| M8   | SO/D1           | IOR36[A] | SD card DAT0     |
-| T9   | DIN/CLKHOLD_N   | IOR38[A] | --               |
-| P9   | DOUT/WE_N       | IOR38[B] | --               |
+See [`sin_rgb.tcl`](sin_rgb.tcl) for a complete build script using this option.
 
-## Verifying the Fix
+---
 
-After enabling the pin, re-run synthesis + PNR. The pinout report should show the pin placed successfully with its user function rather than the dedicated function name.
+## Sources
 
-## Reference
-
-- [Tang Primer 20K Example - Error code RP2017](https://github.com/sipeed/TangPrimer-20K-example#error-coderp2017)
-- [Gowin Semiconductor - Dual Purpose Pin Configuration](https://www.gowinsemi.com)
+- Gowin Software User Guide SUG100-4.4.2E, Section 8.3.19 (`set_option`)
+- `multipurposeconfig.xml` in Gowin IDE (GUI-to-Tcl mapping)
+- `device.cfg` in Gowin IDE share/config
+- Gowin FPGA community forum / EEVblog FPGA board
