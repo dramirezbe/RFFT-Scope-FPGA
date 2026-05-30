@@ -33,7 +33,6 @@ set_device GW2A-LV18PG256C8/I7 -device_version C
 # Options
 # ──────────────────────────────────────────
 set_option -top_module   top
-set_option -synthesis_tool GowinSynthesis
 set_option -verilog_std  sysv2017
 set_option -output_base_name sin_rgb
 
