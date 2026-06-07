@@ -21,6 +21,7 @@ El ecosistema de desarrollo para este módulo está compuesto por los siguientes
 ### 1. Módulos de Hardware (Códigos Verilog `.v`)
 * **`complex_fft_core.v`**: Módulo de nivel superior (*Top-level*). Implementa la FSM global de 6 estados que gobierna la carga del bloque por flujo *Valid/Ready*, la inicialización secuencial de las etapas y el flujo de streaming final.
 * **`fft_stage_controller.v`**: Subcontrolador intermedio. Administra un pipeline síncrono de 3 ciclos por mariposa y aplica el desplazamiento aritmético hacia la derecha (división por 2) para mitigar el desbordamiento (*overflow*) acumulativo.
+*  **`working_memory.v`**: Bloque de memoria RAM interna de doble puerto. Almacena las 1024 muestras complejas intermedias (32 bits por muestra: 16-bit Real + 16-bit Imaginario) organizadas estratégicamente para el acceso concurrente.
 * **`butterfly_radix2.v`**: *Módulo del Bloque 3 integrado*. Unidad operativa que procesa sumas y restas complejas saturadas en un ciclo de reloj.
 
 ### 2. Scripts de Automatización (Código Python `.py`)
