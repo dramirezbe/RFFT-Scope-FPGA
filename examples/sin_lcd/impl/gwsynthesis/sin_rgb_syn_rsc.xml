@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="top" T_Register="24(0)" T_Lut="731(0)">
+ <SubModule name="pll_40m_inst"/>
+ <SubModule name="lcd_ctrl_inst" Register="23" Lut="85" T_Register="23(23)" T_Lut="85(85)"/>
+ <SubModule name="lcd_data_inst" Register="1" Lut="646" T_Register="1(1)" T_Lut="646(646)"/>
+</Module>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="rfft_block1_2_top" T_Register="345(0)" T_Alu="10(0)" T_Lut="433(0)" T_Bsram="6(0)" T_Ssram="16(0)">
+ <SubModule name="u_block1" T_Register="236(0)" T_Alu="10(0)" T_Lut="375(0)" T_Bsram="4(0)" T_Ssram="16(0)">
+  <SubModule name="u_rx" Register="141" Lut="204" T_Register="141(141)" T_Lut="204(204)"/>
+  <SubModule name="core" Lut="3" T_Register="95(0)" T_Alu="10(0)" T_Lut="171(3)" T_Bsram="4(0)" T_Ssram="16(0)">
+   <SubModule name="input_fifo" Register="20" Alu="10" Lut="60" Ssram="16" T_Register="20(20)" T_Alu="10(10)" T_Lut="60(60)" T_Ssram="16(16)"/>
+   <SubModule name="sb" Register="17" Lut="67" Bsram="4" T_Register="17(17)" T_Lut="67(67)" T_Bsram="4(4)"/>
+   <SubModule name="pc" Register="58" Lut="41" T_Register="58(58)" T_Lut="41(41)"/>
+  </SubModule>
+ </SubModule>
+ <SubModule name="u_block2" T_Register="109(0)" T_Lut="58(0)" T_Bsram="2(0)">
+  <SubModule name="u_permutation_controller" Register="109" Lut="58" T_Register="109(109)" T_Lut="58(58)" T_Bsram="2(0)">
+   <SubModule name="u_ram" Bsram="2" T_Bsram="2(2)"/>
+  </SubModule>
+ </SubModule>
+</Module>

@@ -1,0 +1,21 @@
+-d /home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/block1_2_fusion/impl/gwsynthesis/block1_2_fusion.vg
+-p GW2A-18C-PBGA256-8
+-pn GW2A-LV18PG256C8/I7
+-cst /home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/rfft_block1_2.cst
+-cfg /home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/block1_2_fusion/impl/pnr/device.cfg
+-bit
+-tr
+-ph
+-sdf
+-posp
+-o
+-tt
+-timing
+-cst_error
+-convert_sdp32_36_to_sdp16_18
+-place_option 0
+-route_option 0
+-clock_route_order 0
+-correct_hold 1
+-route_maxfan 23
+-global_freq 100.000

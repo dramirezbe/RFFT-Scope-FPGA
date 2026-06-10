@@ -1,0 +1,33 @@
+Reading netlist file: "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/gwsynthesis/sin_rgb.vg"
+Parsing netlist file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/gwsynthesis/sin_rgb.vg" completed
+Processing netlist completed
+Reading constraint file: "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/src/sin_rgb.cst"
+Physical Constraint parsed completed
+Running placement......
+[10%] Placement Phase 0 completed
+[20%] Placement Phase 1 completed
+[30%] Placement Phase 2 completed
+[50%] Placement Phase 3 completed
+Running routing......
+[60%] Routing Phase 0 completed
+[70%] Routing Phase 1 completed
+[80%] Routing Phase 2 completed
+[90%] Routing Phase 3 completed
+Running timing analysis......
+[95%] Timing analysis completed
+Placement and routing completed
+Bitstream generation in progress......
+Bitstream generation completed
+Running power analysis......
+[100%] Power analysis completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.power.html" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.pin.html" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.rpt.html" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.rpt.txt" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.sdf" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.vo" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.tr.html" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.tr" completed
+Generate file "/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/examples/sin_lcd/impl/pnr/sin_rgb.posp" completed
+Wed Jun 10 15:24:54 2026
+

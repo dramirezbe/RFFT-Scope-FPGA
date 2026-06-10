@@ -1,0 +1,15 @@
+//Copyright (C)2014-2025 Gowin Semiconductor Corporation.
+//All rights reserved.
+//File Title: Post-Place file
+//Tool Version: V1.9.11.03 Education
+//Part Number: GW2A-LV18PG256C8/I7
+//Device: GW2A-18
+//Device Version: C
+//Created Time: Wed Jun 10 16:53:23 2026
+
+u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s PLACE_BSRAM_R28[8]
+u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s PLACE_BSRAM_R28[9]
+u_block1/core/sb/mem0_even_mem0_even_0_0_s PLACE_BSRAM_R28[6]
+u_block1/core/sb/mem0_odd_mem0_odd_0_0_s PLACE_BSRAM_R28[7]
+u_block1/core/sb/mem1_even_mem1_even_0_0_s PLACE_BSRAM_R28[10]
+u_block1/core/sb/mem1_odd_mem1_odd_0_0_s PLACE_BSRAM_R28[11]

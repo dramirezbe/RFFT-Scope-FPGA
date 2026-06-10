@@ -3,7 +3,12 @@
 # Builds: UART acquisition + complex packing (Block 1) fused with the
 #         bit-reverse permutation memory (Block 2).
 
-set script_dir [file dirname [info script]]
+set script_dir [file normalize [file dirname [info script]]]
+
+# ──────────────────────────────────────────
+# Clean stale project (to avoid path caching)
+# ──────────────────────────────────────────
+file delete -force $script_dir/block1_2_fusion
 
 # ──────────────────────────────────────────
 # Project
@@ -18,22 +23,22 @@ create_project -name block1_2_fusion      \
 # Source files (relative to script_dir)
 # ──────────────────────────────────────────
 # Block 1 — UART RX, FIFO, ping-pong buffer, complex packing
-add_file src/block1/uart_rx.v              -type verilog
-add_file src/block1/sample_fifo.v          -type verilog
-add_file src/block1/sample_buffer.v        -type verilog
-add_file src/block1/pack_real_to_complex.v -type verilog
-add_file src/block1/block1_top.v           -type verilog
-add_file src/block1/block1_i2s_top.v       -type verilog
+add_file $script_dir/src/block1/uart_rx.v              -type verilog
+add_file $script_dir/src/block1/sample_fifo.v          -type verilog
+add_file $script_dir/src/block1/sample_buffer.v        -type verilog
+add_file $script_dir/src/block1/pack_real_to_complex.v -type verilog
+add_file $script_dir/src/block1/block1_top.v           -type verilog
+add_file $script_dir/src/block1/block1_i2s_top.v       -type verilog
 
 # Block 2 — bit-reverse permutation memory
-add_file src/block2/bit_reverse.v                  -type verilog
-add_file src/block2/dual_port_ram_buffer.v         -type verilog
-add_file src/block2/permutation_controller.v       -type verilog
-add_file src/block2/block2_memory_bitreverse_top.v -type verilog
+add_file $script_dir/src/block2/bit_reverse.v                  -type verilog
+add_file $script_dir/src/block2/dual_port_ram_buffer.v         -type verilog
+add_file $script_dir/src/block2/permutation_controller.v       -type verilog
+add_file $script_dir/src/block2/block2_memory_bitreverse_top.v -type verilog
 
 # Fusion top + constraints
-add_file src/rfft_block1_2_top.v -type verilog
-add_file src/rfft_block1_2.cst   -type cst
+add_file $script_dir/src/rfft_block1_2_top.v -type verilog
+add_file $script_dir/src/rfft_block1_2.cst   -type cst
 
 # ──────────────────────────────────────────
 # Device

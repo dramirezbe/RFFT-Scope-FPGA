@@ -1,0 +1,21 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW2A-18C" pn="GW2A-LV18PG256C8/I7">gw2a18c-011</Device>
+    <FileList>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block1/block1_i2s_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block1/block1_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block1/pack_real_to_complex.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block1/sample_buffer.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block1/sample_fifo.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block1/uart_rx.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block2/bit_reverse.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block2/block2_memory_bitreverse_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block2/dual_port_ram_buffer.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/block2/permutation_controller.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/rfft_block1_2_top.v" type="file.verilog" enable="1"/>
+        <File path="/home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/rfft_block1_2.cst" type="file.cst" enable="1"/>
+    </FileList>
+</Project>

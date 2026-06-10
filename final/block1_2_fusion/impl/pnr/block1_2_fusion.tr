@@ -1,0 +1,2916 @@
+//Copyright (C)2014-2025 Gowin Semiconductor Corporation.
+//All rights reserved.
+
+INTRODUCTION:
+The document contains two main sections: Timing Report Directory and Core Timing Report.
+
+============================================================
+Note:Timing Report Directory
+
+1. Timing Message
+2. Timing Summaries
+	2.1 STA Tool Run Summary
+	2.2 Clock Summary
+	2.3 Max Frequency Summary
+	2.4 Total Negative Slack Summary
+3. Timing Details
+	3.1 Path Slacks Table
+		3.1.1 Setup Paths Table
+		3.1.2 Hold Paths Table
+		3.1.3 Recovery Paths Table
+		3.1.4 Removal Paths Table
+	3.2 Minimum Pulse Width Table
+	3.3 Timing Report By Analysis Type
+		3.3.1 Setup Analysis Report
+		3.3.2 Hold Analysis Report
+		3.3.3 Recovery Analysis Report
+		3.3.4 Removal Analysis Report
+	3.4 Minimum Pulse Width Report
+	3.5 High Fanout Nets Report
+	3.6 Route Congestions Report
+	3.7 Timing Exceptions Report
+		3.7.1 Setup Analysis Report
+		3.7.2 Hold Analysis Report
+		3.7.3 Recovery Analysis Report
+		3.7.4 Recovery Analysis Report
+	3.8 Timing Constraints Report
+
+============================================================
+
+Note:Core Timing Report
+
+1. Timing Messages
+<Report Title>: Timing Analysis Report
+<Design File>: /home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/block1_2_fusion/impl/gwsynthesis/block1_2_fusion.vg
+<Physical Constraints File>: /home/javastral/GIT/UNAL/RFFT-Scope-FPGA/final/src/rfft_block1_2.cst
+<Timing Constraints File>: ---
+<Tool Version>: V1.9.11.03 Education
+<Part Number>: GW2A-LV18PG256C8/I7
+<Device>: GW2A-18
+<Device Version>: C
+<Created Time>: Wed Jun 10 16:53:23 2026
+
+
+2. Timing Summaries
+2.1 STA Tool Run Summary
+<Setup Delay Model>:Slow 0.95V 85C C8/I7
+<Hold Delay Model>:Fast 1.05V 0C C8/I7
+<Numbers of Paths Analyzed>:1449
+<Numbers of Endpoints Analyzed>:1440
+<Numbers of Falling Endpoints>:0
+<Numbers of Setup Violated Endpoints>:0
+<Numbers of Hold Violated Endpoints>:0
+
+2.2 Clock Summary
+  NO.   Clock Name   Type   Period   Frequency    Rise    Fall    Source   Master     Objects    
+ ===== ============ ====== ======== ============ ======= ======= ======== ======== ============= 
+  1     clk          Base   10.000   100.000MHz   0.000   5.000                     clk_ibuf/I   
+
+2.3 Max Frequency Summary
+  NO.   Clock Name    Constraint    Actual Fmax    Level   Entity  
+ ===== ============ ============== ============== ======= ======== 
+  1     clk          100.000(MHz)   157.066(MHz)   7       TOP     
+
+2.4 Total Negative Slack Summary
+  Clock Name   Analysis Type   EndPoints TNS   Number of EndPoints  
+ ============ =============== =============== ===================== 
+  clk          setup           0.000           0                    
+  clk          hold            0.000           0                    
+
+
+3. Timing Details
+3.1 Path Slacks Table
+3.1.1 Setup Paths Table
+<Report Command>:report_timing -setup -max_paths 25 -max_common_paths 1
+  Path Number   Path Slack                  From Node                                       To Node                        From Clock   To Clock   Relation   Clock Skew   Data Delay  
+ ============= ============ ========================================== ================================================== ============ ========== ========== ============ ============ 
+  1             3.633        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_21_s1/D                    clk:[R]      clk:[R]    10.000     0.000        6.332       
+  2             3.657        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_9_s1/D                     clk:[R]      clk:[R]    10.000     0.000        6.308       
+  3             3.891        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_17_s1/D                    clk:[R]      clk:[R]    10.000     0.000        6.074       
+  4             3.979        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_10_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.986       
+  5             3.997        u_block1/u_rx/payload_bytes_count_0_s0/Q   u_block1/u_rx/payload_bytes_count_30_s0/D          clk:[R]      clk:[R]    10.000     0.000        5.968       
+  6             3.999        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_12_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.966       
+  7             3.999        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_15_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.966       
+  8             4.010        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_6_s1/D                     clk:[R]      clk:[R]    10.000     0.000        5.955       
+  9             4.040        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_13_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.925       
+  10            4.040        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_16_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.925       
+  11            4.120        u_block1/u_rx/payload_bytes_count_0_s0/Q   u_block1/u_rx/state_0_s0/CE                        clk:[R]      clk:[R]    10.000     0.000        5.845       
+  12            4.120        u_block1/u_rx/payload_bytes_count_0_s0/Q   u_block1/u_rx/state_1_s0/CE                        clk:[R]      clk:[R]    10.000     0.000        5.845       
+  13            4.120        u_block1/u_rx/payload_bytes_count_0_s0/Q   u_block1/u_rx/state_2_s0/CE                        clk:[R]      clk:[R]    10.000     0.000        5.845       
+  14            4.131        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_23_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.834       
+  15            4.140        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_20_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.825       
+  16            4.175        u_block1/u_rx/payload_bytes_count_0_s0/Q   u_block1/u_rx/payload_bytes_count_31_s0/D          clk:[R]      clk:[R]    10.000     0.000        5.790       
+  17            4.274        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_25_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.691       
+  18            4.274        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_28_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.691       
+  19            4.291        u_block1/core/input_fifo/rd_ptr_0_s22/Q    u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[2]     clk:[R]      clk:[R]    10.000     0.000        5.674       
+  20            4.342        u_block1/core/input_fifo/rd_ptr_0_s22/Q    u_block1/core/sb/mem0_even_mem0_even_0_0_s/DI[7]   clk:[R]      clk:[R]    10.000     0.000        5.624       
+  21            4.465        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/bit_timer_29_s1/D                    clk:[R]      clk:[R]    10.000     0.000        5.500       
+  22            4.485        u_block1/core/input_fifo/rd_ptr_0_s22/Q    u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[7]     clk:[R]      clk:[R]    10.000     0.000        5.480       
+  23            4.513        u_block1/core/input_fifo/rd_ptr_0_s22/Q    u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[5]     clk:[R]      clk:[R]    10.000     0.000        5.453       
+  24            4.582        u_block1/core/input_fifo/rd_ptr_0_s22/Q    u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[4]     clk:[R]      clk:[R]    10.000     0.000        5.383       
+  25            4.653        u_block1/u_rx/bit_timer_21_s1/Q            u_block1/u_rx/receiving_s6/D                       clk:[R]      clk:[R]    10.000     0.000        5.312       
+
+3.1.2 Hold Paths Table
+<Report Command>:report_timing -hold -max_paths 25 -max_common_paths 1
+  Path Number   Path Slack                        From Node                                                       To Node                                   From Clock   To Clock   Relation   Clock Skew   Data Delay  
+ ============= ============ ===================================================== ======================================================================== ============ ========== ========== ============ ============ 
+  1             0.074        u_block2/u_permutation_controller/wr_imag_q_5_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[5]    clk:[R]      clk:[R]    0.000      0.000        0.323       
+  2             0.074        u_block2/u_permutation_controller/wr_imag_q_1_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[1]    clk:[R]      clk:[R]    0.000      0.000        0.323       
+  3             0.074        u_block2/u_permutation_controller/wr_real_q_11_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[11]   clk:[R]      clk:[R]    0.000      0.000        0.323       
+  4             0.074        u_block2/u_permutation_controller/wr_real_q_10_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[10]   clk:[R]      clk:[R]    0.000      0.000        0.323       
+  5             0.074        u_block2/u_permutation_controller/wr_real_q_6_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[6]    clk:[R]      clk:[R]    0.000      0.000        0.323       
+  6             0.076        u_block2/u_permutation_controller/wr_real_q_13_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[13]   clk:[R]      clk:[R]    0.000      0.000        0.325       
+  7             0.202        u_block2/u_permutation_controller/wr_imag_q_8_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[8]    clk:[R]      clk:[R]    0.000      0.000        0.451       
+  8             0.202        u_block2/u_permutation_controller/wr_imag_q_6_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[6]    clk:[R]      clk:[R]    0.000      0.000        0.451       
+  9             0.202        u_block2/u_permutation_controller/wr_imag_q_3_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[3]    clk:[R]      clk:[R]    0.000      0.000        0.451       
+  10            0.202        u_block2/u_permutation_controller/wr_real_q_15_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[15]   clk:[R]      clk:[R]    0.000      0.000        0.451       
+  11            0.202        u_block2/u_permutation_controller/wr_real_q_9_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[9]    clk:[R]      clk:[R]    0.000      0.000        0.451       
+  12            0.211        u_block2/u_permutation_controller/rd_addr_3_s0/Q      u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/ADB[7]   clk:[R]      clk:[R]    0.000      0.000        0.329       
+  13            0.211        u_block2/u_permutation_controller/rd_addr_0_s0/Q      u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/ADB[4]   clk:[R]      clk:[R]    0.000      0.000        0.329       
+  14            0.213        u_block2/u_permutation_controller/wr_imag_q_15_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[15]   clk:[R]      clk:[R]    0.000      0.000        0.462       
+  15            0.213        u_block2/u_permutation_controller/wr_imag_q_14_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[14]   clk:[R]      clk:[R]    0.000      0.000        0.462       
+  16            0.213        u_block2/u_permutation_controller/wr_imag_q_12_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[12]   clk:[R]      clk:[R]    0.000      0.000        0.462       
+  17            0.213        u_block2/u_permutation_controller/wr_imag_q_11_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[11]   clk:[R]      clk:[R]    0.000      0.000        0.462       
+  18            0.213        u_block2/u_permutation_controller/wr_imag_q_10_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[10]   clk:[R]      clk:[R]    0.000      0.000        0.462       
+  19            0.213        u_block2/u_permutation_controller/wr_imag_q_9_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[9]    clk:[R]      clk:[R]    0.000      0.000        0.462       
+  20            0.213        u_block2/u_permutation_controller/wr_real_q_14_s0/Q   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[14]   clk:[R]      clk:[R]    0.000      0.000        0.462       
+  21            0.213        u_block2/u_permutation_controller/wr_real_q_8_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[8]    clk:[R]      clk:[R]    0.000      0.000        0.462       
+  22            0.213        u_block2/u_permutation_controller/wr_real_q_7_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[7]    clk:[R]      clk:[R]    0.000      0.000        0.462       
+  23            0.213        u_block2/u_permutation_controller/wr_real_q_1_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[1]    clk:[R]      clk:[R]    0.000      0.000        0.462       
+  24            0.213        u_block2/u_permutation_controller/wr_real_q_0_s0/Q    u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[0]    clk:[R]      clk:[R]    0.000      0.000        0.462       
+  25            0.316        u_block1/u_rx/sample_out_7_s0/Q                       u_block1/core/input_fifo/mem_mem_0_1_s/DI[3]                             clk:[R]      clk:[R]    0.000      0.000        0.326       
+
+3.1.3 Recovery Paths Table
+<Report Command>:report_timing -recovery -max_paths 25 -max_common_paths 1
+Nothing to report!
+3.1.4 Removal Paths Table
+<Report Command>:report_timing -removal -max_paths 25 -max_common_paths 1
+Nothing to report!
+3.2 Minimum Pulse Width Table
+Report Command:report_min_pulse_width -nworst 10 -detail
+  Number   Slack   Actual Width   Required Width         Type         Clock                      Objects                      
+ ======== ======= ============== ================ ================== ======= ================================================ 
+  1        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/rx_sync1_s0                       
+  2        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/rx_shift_7_s0                     
+  3        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/rx_shift_5_s0                     
+  4        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/rx_shift_1_s0                     
+  5        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/rx_byte_reg_2_s0                  
+  6        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/payload_bytes_expected_7_s0       
+  7        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/payload_bytes_count_6_s0          
+  8        1.152   2.152          1.000            High Pulse Width   clk     u_block1/u_rx/bit_timer_8_s1                    
+  9        1.152   2.152          1.000            High Pulse Width   clk     u_block2/u_permutation_controller/wr_addr_9_s0  
+  10       1.152   2.152          1.000            High Pulse Width   clk     u_block2/u_permutation_controller/wr_en_s0      
+
+3.3 Timing Report By Analysis Type
+3.3.1 Setup Analysis Report
+Report Command:report_timing -setup -max_paths 25 -max_common_paths 1
+						Path1						
+Path Summary:
+Slack             : 3.633
+Data Arrival Time : 12.833
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_21_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  12.263   0.826   tNET   FF   1        R22C23[2][A]   u_block1/u_rx/n235_s2/I3           
+  12.833   0.570   tINS   FR   1        R22C23[2][A]   u_block1/u_rx/n235_s2/F            
+  12.833   0.000   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  16.466   -0.035   tSu         1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.039 47.996%, 
+                    route: 3.061 48.340%, 
+                    tC2Q: 0.232 3.664%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path2						
+Path Summary:
+Slack             : 3.657
+Data Arrival Time : 12.810
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_9_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  12.261   0.824   tNET   FF   1        R22C24[1][A]   u_block1/u_rx/n247_s2/I3           
+  12.810   0.549   tINS   FR   1        R22C24[1][A]   u_block1/u_rx/n247_s2/F            
+  12.810   0.000   tNET   RR   1        R22C24[1][A]   u_block1/u_rx/bit_timer_9_s1/D     
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                
+ ======== ======== ====== ==== ======== ============== ================================== 
+  10.000   10.000                                       active clock edge time            
+  10.000   0.000                                        clk                               
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                        
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                        
+  16.501   2.271    tNET   RR   1        R22C24[1][A]   u_block1/u_rx/bit_timer_9_s1/CLK  
+  16.466   -0.035   tSu         1        R22C24[1][A]   u_block1/u_rx/bit_timer_9_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.018 47.842%, 
+                    route: 3.058 48.481%, 
+                    tC2Q: 0.232 3.678%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path3						
+Path Summary:
+Slack             : 3.891
+Data Arrival Time : 12.575
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_17_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  12.113   0.676   tNET   FF   1        R22C23[1][B]   u_block1/u_rx/n239_s2/I3           
+  12.575   0.462   tINS   FR   1        R22C23[1][B]   u_block1/u_rx/n239_s2/F            
+  12.575   0.000   tNET   RR   1        R22C23[1][B]   u_block1/u_rx/bit_timer_17_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C23[1][B]   u_block1/u_rx/bit_timer_17_s1/CLK  
+  16.466   -0.035   tSu         1        R22C23[1][B]   u_block1/u_rx/bit_timer_17_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.931 48.256%, 
+                    route: 2.911 47.925%, 
+                    tC2Q: 0.232 3.820%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path4						
+Path Summary:
+Slack             : 3.979
+Data Arrival Time : 12.487
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_10_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  12.116   0.679   tNET   FF   1        R22C25[2][A]   u_block1/u_rx/n246_s2/I3           
+  12.487   0.371   tINS   FF   1        R22C25[2][A]   u_block1/u_rx/n246_s2/F            
+  12.487   0.000   tNET   FF   1        R22C25[2][A]   u_block1/u_rx/bit_timer_10_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C25[2][A]   u_block1/u_rx/bit_timer_10_s1/CLK  
+  16.466   -0.035   tSu         1        R22C25[2][A]   u_block1/u_rx/bit_timer_10_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.840 47.442%, 
+                    route: 2.914 48.682%, 
+                    tC2Q: 0.232 3.876%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path5						
+Path Summary:
+Slack             : 3.997
+Data Arrival Time : 12.470
+Data Required Time: 16.466
+From              : u_block1/u_rx/payload_bytes_count_0_s0
+To                : u_block1/u_rx/payload_bytes_count_30_s0
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                           NODE                     
+ ======== ======= ====== ==== ======== ============== ============================================ 
+  0.000    0.000                                       active clock edge time                      
+  0.000    0.000                                       clk                                         
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                  
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                                  
+  6.501    2.271   tNET   RR   1        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/CLK  
+  6.733    0.232   tC2Q   RF   9        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/Q    
+  7.325    0.592   tNET   FF   1        R26C22[2][A]   u_block1/u_rx/n539_s12/I1                   
+  7.696    0.371   tINS   FF   14       R26C22[2][A]   u_block1/u_rx/n539_s12/F                    
+  8.115    0.419   tNET   FF   1        R26C23[3][B]   u_block1/u_rx/n529_s11/I0                   
+  8.632    0.517   tINS   FF   11       R26C23[3][B]   u_block1/u_rx/n529_s11/F                    
+  9.674    1.041   tNET   FF   1        R31C24[0][A]   u_block1/u_rx/n520_s11/I1                   
+  10.127   0.453   tINS   FF   6        R31C24[0][A]   u_block1/u_rx/n520_s11/F                    
+  10.320   0.193   tNET   FF   1        R32C24[2][B]   u_block1/u_rx/n518_s11/I2                   
+  10.875   0.555   tINS   FF   4        R32C24[2][B]   u_block1/u_rx/n518_s11/F                    
+  11.285   0.410   tNET   FF   1        R32C23[1][B]   u_block1/u_rx/n513_s11/I3                   
+  11.747   0.462   tINS   FR   2        R32C23[1][B]   u_block1/u_rx/n513_s11/F                    
+  11.921   0.174   tNET   RR   1        R32C24[1][B]   u_block1/u_rx/n513_s10/I1                   
+  12.470   0.549   tINS   RR   1        R32C24[1][B]   u_block1/u_rx/n513_s10/F                    
+  12.470   0.000   tNET   RR   1        R32C24[1][B]   u_block1/u_rx/payload_bytes_count_30_s0/D   
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                           NODE                      
+ ======== ======== ====== ==== ======== ============== ============================================= 
+  10.000   10.000                                       active clock edge time                       
+  10.000   0.000                                        clk                                          
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                                   
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                                   
+  16.501   2.271    tNET   RR   1        R32C24[1][B]   u_block1/u_rx/payload_bytes_count_30_s0/CLK  
+  16.466   -0.035   tSu         1        R32C24[1][B]   u_block1/u_rx/payload_bytes_count_30_s0      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.907 48.706%, 
+                    route: 2.829 47.406%, 
+                    tC2Q: 0.232 3.887%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path6						
+Path Summary:
+Slack             : 3.999
+Data Arrival Time : 12.467
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_12_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.897   0.461   tNET   FF   1        R22C26[0][A]   u_block1/u_rx/n244_s2/I3           
+  12.467   0.570   tINS   FR   1        R22C26[0][A]   u_block1/u_rx/n244_s2/F            
+  12.467   0.000   tNET   RR   1        R22C26[0][A]   u_block1/u_rx/bit_timer_12_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C26[0][A]   u_block1/u_rx/bit_timer_12_s1/CLK  
+  16.466   -0.035   tSu         1        R22C26[0][A]   u_block1/u_rx/bit_timer_12_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.039 50.936%, 
+                    route: 2.695 45.175%, 
+                    tC2Q: 0.232 3.889%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path7						
+Path Summary:
+Slack             : 3.999
+Data Arrival Time : 12.467
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_15_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.897   0.461   tNET   FF   1        R22C26[1][A]   u_block1/u_rx/n241_s2/I3           
+  12.467   0.570   tINS   FR   1        R22C26[1][A]   u_block1/u_rx/n241_s2/F            
+  12.467   0.000   tNET   RR   1        R22C26[1][A]   u_block1/u_rx/bit_timer_15_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C26[1][A]   u_block1/u_rx/bit_timer_15_s1/CLK  
+  16.466   -0.035   tSu         1        R22C26[1][A]   u_block1/u_rx/bit_timer_15_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.039 50.936%, 
+                    route: 2.695 45.175%, 
+                    tC2Q: 0.232 3.889%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path8						
+Path Summary:
+Slack             : 4.010
+Data Arrival Time : 12.456
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_6_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.886   0.449   tNET   FF   1        R23C25[1][A]   u_block1/u_rx/n250_s2/I3           
+  12.456   0.570   tINS   FR   1        R23C25[1][A]   u_block1/u_rx/n250_s2/F            
+  12.456   0.000   tNET   RR   1        R23C25[1][A]   u_block1/u_rx/bit_timer_6_s1/D     
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                
+ ======== ======== ====== ==== ======== ============== ================================== 
+  10.000   10.000                                       active clock edge time            
+  10.000   0.000                                        clk                               
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                        
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                        
+  16.501   2.271    tNET   RR   1        R23C25[1][A]   u_block1/u_rx/bit_timer_6_s1/CLK  
+  16.466   -0.035   tSu         1        R23C25[1][A]   u_block1/u_rx/bit_timer_6_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.039 51.034%, 
+                    route: 2.684 45.070%, 
+                    tC2Q: 0.232 3.896%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path9						
+Path Summary:
+Slack             : 4.040
+Data Arrival Time : 12.426
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_13_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  12.055   0.618   tNET   FF   1        R22C26[0][B]   u_block1/u_rx/n243_s2/I3           
+  12.426   0.371   tINS   FF   1        R22C26[0][B]   u_block1/u_rx/n243_s2/F            
+  12.426   0.000   tNET   FF   1        R22C26[0][B]   u_block1/u_rx/bit_timer_13_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C26[0][B]   u_block1/u_rx/bit_timer_13_s1/CLK  
+  16.466   -0.035   tSu         1        R22C26[0][B]   u_block1/u_rx/bit_timer_13_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.840 47.933%, 
+                    route: 2.853 48.152%, 
+                    tC2Q: 0.232 3.916%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path10						
+Path Summary:
+Slack             : 4.040
+Data Arrival Time : 12.426
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_16_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  12.055   0.618   tNET   FF   1        R22C26[1][B]   u_block1/u_rx/n240_s2/I3           
+  12.426   0.371   tINS   FF   1        R22C26[1][B]   u_block1/u_rx/n240_s2/F            
+  12.426   0.000   tNET   FF   1        R22C26[1][B]   u_block1/u_rx/bit_timer_16_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R22C26[1][B]   u_block1/u_rx/bit_timer_16_s1/CLK  
+  16.466   -0.035   tSu         1        R22C26[1][B]   u_block1/u_rx/bit_timer_16_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.840 47.933%, 
+                    route: 2.853 48.152%, 
+                    tC2Q: 0.232 3.916%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path11						
+Path Summary:
+Slack             : 4.120
+Data Arrival Time : 12.346
+Data Required Time: 16.466
+From              : u_block1/u_rx/payload_bytes_count_0_s0
+To                : u_block1/u_rx/state_0_s0
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                           NODE                     
+ ======== ======= ====== ==== ======== ============== ============================================ 
+  0.000    0.000                                       active clock edge time                      
+  0.000    0.000                                       clk                                         
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                  
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                                  
+  6.501    2.271   tNET   RR   1        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/CLK  
+  6.733    0.232   tC2Q   RF   9        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/Q    
+  7.325    0.592   tNET   FF   1        R26C22[2][A]   u_block1/u_rx/n539_s12/I1                   
+  7.696    0.371   tINS   FF   14       R26C22[2][A]   u_block1/u_rx/n539_s12/F                    
+  8.115    0.419   tNET   FF   1        R26C23[3][B]   u_block1/u_rx/n529_s11/I0                   
+  8.632    0.517   tINS   FF   11       R26C23[3][B]   u_block1/u_rx/n529_s11/F                    
+  9.431    0.799   tNET   FF   1        R31C23[2][B]   u_block1/u_rx/state_2_s28/I2                
+  9.802    0.371   tINS   FF   1        R31C23[2][B]   u_block1/u_rx/state_2_s28/F                 
+  10.199   0.397   tNET   FF   1        R29C23[3][B]   u_block1/u_rx/state_2_s14/I3                
+  10.652   0.453   tINS   FF   2        R29C23[3][B]   u_block1/u_rx/state_2_s14/F                 
+  10.905   0.253   tNET   FF   1        R27C23[3][A]   u_block1/u_rx/state_2_s5/I2                 
+  11.475   0.570   tINS   FR   1        R27C23[3][A]   u_block1/u_rx/state_2_s5/F                  
+  11.647   0.172   tNET   RR   1        R27C24[3][B]   u_block1/u_rx/state_2_s3/I1                 
+  12.196   0.549   tINS   RR   3        R27C24[3][B]   u_block1/u_rx/state_2_s3/F                  
+  12.346   0.150   tNET   RR   1        R27C24[1][A]   u_block1/u_rx/state_0_s0/CE                 
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                    NODE              
+ ======== ======== ====== ==== ======== ============== ============================== 
+  10.000   10.000                                       active clock edge time        
+  10.000   0.000                                        clk                           
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                    
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                    
+  16.501   2.271    tNET   RR   1        R27C24[1][A]   u_block1/u_rx/state_0_s0/CLK  
+  16.466   -0.035   tSu         1        R27C24[1][A]   u_block1/u_rx/state_0_s0      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.831 48.433%, 
+                    route: 2.782 47.598%, 
+                    tC2Q: 0.232 3.969%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path12						
+Path Summary:
+Slack             : 4.120
+Data Arrival Time : 12.346
+Data Required Time: 16.466
+From              : u_block1/u_rx/payload_bytes_count_0_s0
+To                : u_block1/u_rx/state_1_s0
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                           NODE                     
+ ======== ======= ====== ==== ======== ============== ============================================ 
+  0.000    0.000                                       active clock edge time                      
+  0.000    0.000                                       clk                                         
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                  
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                                  
+  6.501    2.271   tNET   RR   1        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/CLK  
+  6.733    0.232   tC2Q   RF   9        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/Q    
+  7.325    0.592   tNET   FF   1        R26C22[2][A]   u_block1/u_rx/n539_s12/I1                   
+  7.696    0.371   tINS   FF   14       R26C22[2][A]   u_block1/u_rx/n539_s12/F                    
+  8.115    0.419   tNET   FF   1        R26C23[3][B]   u_block1/u_rx/n529_s11/I0                   
+  8.632    0.517   tINS   FF   11       R26C23[3][B]   u_block1/u_rx/n529_s11/F                    
+  9.431    0.799   tNET   FF   1        R31C23[2][B]   u_block1/u_rx/state_2_s28/I2                
+  9.802    0.371   tINS   FF   1        R31C23[2][B]   u_block1/u_rx/state_2_s28/F                 
+  10.199   0.397   tNET   FF   1        R29C23[3][B]   u_block1/u_rx/state_2_s14/I3                
+  10.652   0.453   tINS   FF   2        R29C23[3][B]   u_block1/u_rx/state_2_s14/F                 
+  10.905   0.253   tNET   FF   1        R27C23[3][A]   u_block1/u_rx/state_2_s5/I2                 
+  11.475   0.570   tINS   FR   1        R27C23[3][A]   u_block1/u_rx/state_2_s5/F                  
+  11.647   0.172   tNET   RR   1        R27C24[3][B]   u_block1/u_rx/state_2_s3/I1                 
+  12.196   0.549   tINS   RR   3        R27C24[3][B]   u_block1/u_rx/state_2_s3/F                  
+  12.346   0.150   tNET   RR   1        R27C24[0][A]   u_block1/u_rx/state_1_s0/CE                 
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                    NODE              
+ ======== ======== ====== ==== ======== ============== ============================== 
+  10.000   10.000                                       active clock edge time        
+  10.000   0.000                                        clk                           
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                    
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                    
+  16.501   2.271    tNET   RR   1        R27C24[0][A]   u_block1/u_rx/state_1_s0/CLK  
+  16.466   -0.035   tSu         1        R27C24[0][A]   u_block1/u_rx/state_1_s0      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.831 48.433%, 
+                    route: 2.782 47.598%, 
+                    tC2Q: 0.232 3.969%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path13						
+Path Summary:
+Slack             : 4.120
+Data Arrival Time : 12.346
+Data Required Time: 16.466
+From              : u_block1/u_rx/payload_bytes_count_0_s0
+To                : u_block1/u_rx/state_2_s0
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                           NODE                     
+ ======== ======= ====== ==== ======== ============== ============================================ 
+  0.000    0.000                                       active clock edge time                      
+  0.000    0.000                                       clk                                         
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                  
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                                  
+  6.501    2.271   tNET   RR   1        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/CLK  
+  6.733    0.232   tC2Q   RF   9        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/Q    
+  7.325    0.592   tNET   FF   1        R26C22[2][A]   u_block1/u_rx/n539_s12/I1                   
+  7.696    0.371   tINS   FF   14       R26C22[2][A]   u_block1/u_rx/n539_s12/F                    
+  8.115    0.419   tNET   FF   1        R26C23[3][B]   u_block1/u_rx/n529_s11/I0                   
+  8.632    0.517   tINS   FF   11       R26C23[3][B]   u_block1/u_rx/n529_s11/F                    
+  9.431    0.799   tNET   FF   1        R31C23[2][B]   u_block1/u_rx/state_2_s28/I2                
+  9.802    0.371   tINS   FF   1        R31C23[2][B]   u_block1/u_rx/state_2_s28/F                 
+  10.199   0.397   tNET   FF   1        R29C23[3][B]   u_block1/u_rx/state_2_s14/I3                
+  10.652   0.453   tINS   FF   2        R29C23[3][B]   u_block1/u_rx/state_2_s14/F                 
+  10.905   0.253   tNET   FF   1        R27C23[3][A]   u_block1/u_rx/state_2_s5/I2                 
+  11.475   0.570   tINS   FR   1        R27C23[3][A]   u_block1/u_rx/state_2_s5/F                  
+  11.647   0.172   tNET   RR   1        R27C24[3][B]   u_block1/u_rx/state_2_s3/I1                 
+  12.196   0.549   tINS   RR   3        R27C24[3][B]   u_block1/u_rx/state_2_s3/F                  
+  12.346   0.150   tNET   RR   1        R27C24[0][B]   u_block1/u_rx/state_2_s0/CE                 
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                    NODE              
+ ======== ======== ====== ==== ======== ============== ============================== 
+  10.000   10.000                                       active clock edge time        
+  10.000   0.000                                        clk                           
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                    
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                    
+  16.501   2.271    tNET   RR   1        R27C24[0][B]   u_block1/u_rx/state_2_s0/CLK  
+  16.466   -0.035   tSu         1        R27C24[0][B]   u_block1/u_rx/state_2_s0      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.831 48.433%, 
+                    route: 2.782 47.598%, 
+                    tC2Q: 0.232 3.969%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path14						
+Path Summary:
+Slack             : 4.131
+Data Arrival Time : 12.336
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_23_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.874   0.437   tNET   FF   1        R23C25[1][B]   u_block1/u_rx/n233_s2/I3           
+  12.336   0.462   tINS   FR   1        R23C25[1][B]   u_block1/u_rx/n233_s2/F            
+  12.336   0.000   tNET   RR   1        R23C25[1][B]   u_block1/u_rx/bit_timer_23_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R23C25[1][B]   u_block1/u_rx/bit_timer_23_s1/CLK  
+  16.466   -0.035   tSu         1        R23C25[1][B]   u_block1/u_rx/bit_timer_23_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.931 50.236%, 
+                    route: 2.671 45.788%, 
+                    tC2Q: 0.232 3.976%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path15						
+Path Summary:
+Slack             : 4.140
+Data Arrival Time : 12.327
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_20_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.865   0.428   tNET   FF   1        R24C23[0][B]   u_block1/u_rx/n236_s2/I3           
+  12.327   0.462   tINS   FR   1        R24C23[0][B]   u_block1/u_rx/n236_s2/F            
+  12.327   0.000   tNET   RR   1        R24C23[0][B]   u_block1/u_rx/bit_timer_20_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R24C23[0][B]   u_block1/u_rx/bit_timer_20_s1/CLK  
+  16.466   -0.035   tSu         1        R24C23[0][B]   u_block1/u_rx/bit_timer_20_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.931 50.314%, 
+                    route: 2.662 45.704%, 
+                    tC2Q: 0.232 3.983%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path16						
+Path Summary:
+Slack             : 4.175
+Data Arrival Time : 12.292
+Data Required Time: 16.466
+From              : u_block1/u_rx/payload_bytes_count_0_s0
+To                : u_block1/u_rx/payload_bytes_count_31_s0
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                           NODE                     
+ ======== ======= ====== ==== ======== ============== ============================================ 
+  0.000    0.000                                       active clock edge time                      
+  0.000    0.000                                       clk                                         
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                  
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                                  
+  6.501    2.271   tNET   RR   1        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/CLK  
+  6.733    0.232   tC2Q   RF   9        R25C24[0][B]   u_block1/u_rx/payload_bytes_count_0_s0/Q    
+  7.325    0.592   tNET   FF   1        R26C22[2][A]   u_block1/u_rx/n539_s12/I1                   
+  7.696    0.371   tINS   FF   14       R26C22[2][A]   u_block1/u_rx/n539_s12/F                    
+  8.115    0.419   tNET   FF   1        R26C23[3][B]   u_block1/u_rx/n529_s11/I0                   
+  8.632    0.517   tINS   FF   11       R26C23[3][B]   u_block1/u_rx/n529_s11/F                    
+  9.674    1.041   tNET   FF   1        R31C24[0][A]   u_block1/u_rx/n520_s11/I1                   
+  10.127   0.453   tINS   FF   6        R31C24[0][A]   u_block1/u_rx/n520_s11/F                    
+  10.320   0.193   tNET   FF   1        R32C24[2][B]   u_block1/u_rx/n518_s11/I2                   
+  10.875   0.555   tINS   FF   4        R32C24[2][B]   u_block1/u_rx/n518_s11/F                    
+  11.285   0.410   tNET   FF   1        R32C23[1][B]   u_block1/u_rx/n513_s11/I3                   
+  11.747   0.462   tINS   FR   2        R32C23[1][B]   u_block1/u_rx/n513_s11/F                    
+  11.921   0.174   tNET   RR   1        R32C24[2][A]   u_block1/u_rx/n512_s12/I1                   
+  12.292   0.371   tINS   RF   1        R32C24[2][A]   u_block1/u_rx/n512_s12/F                    
+  12.292   0.000   tNET   FF   1        R32C24[2][A]   u_block1/u_rx/payload_bytes_count_31_s0/D   
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                           NODE                      
+ ======== ======== ====== ==== ======== ============== ============================================= 
+  10.000   10.000                                       active clock edge time                       
+  10.000   0.000                                        clk                                          
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                                   
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                                   
+  16.501   2.271    tNET   RR   1        R32C24[2][A]   u_block1/u_rx/payload_bytes_count_31_s0/CLK  
+  16.466   -0.035   tSu         1        R32C24[2][A]   u_block1/u_rx/payload_bytes_count_31_s0      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.729 47.130%, 
+                    route: 2.829 48.864%, 
+                    tC2Q: 0.232 4.007%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path17						
+Path Summary:
+Slack             : 4.274
+Data Arrival Time : 12.192
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_25_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.643   0.206   tNET   FF   1        R23C26[1][B]   u_block1/u_rx/n231_s2/I3           
+  12.192   0.549   tINS   FR   1        R23C26[1][B]   u_block1/u_rx/n231_s2/F            
+  12.192   0.000   tNET   RR   1        R23C26[1][B]   u_block1/u_rx/bit_timer_25_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R23C26[1][B]   u_block1/u_rx/bit_timer_25_s1/CLK  
+  16.466   -0.035   tSu         1        R23C26[1][B]   u_block1/u_rx/bit_timer_25_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.018 53.030%, 
+                    route: 2.441 42.893%, 
+                    tC2Q: 0.232 4.077%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path18						
+Path Summary:
+Slack             : 4.274
+Data Arrival Time : 12.192
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_28_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.437   0.555   tINS   FF   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.643   0.206   tNET   FF   1        R23C26[1][A]   u_block1/u_rx/n228_s4/I3           
+  12.192   0.549   tINS   FR   1        R23C26[1][A]   u_block1/u_rx/n228_s4/F            
+  12.192   0.000   tNET   RR   1        R23C26[1][A]   u_block1/u_rx/bit_timer_28_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R23C26[1][A]   u_block1/u_rx/bit_timer_28_s1/CLK  
+  16.466   -0.035   tSu         1        R23C26[1][A]   u_block1/u_rx/bit_timer_28_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 3.018 53.030%, 
+                    route: 2.441 42.893%, 
+                    tC2Q: 0.232 4.077%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path19						
+Path Summary:
+Slack             : 4.291
+Data Arrival Time : 12.176
+Data Required Time: 16.467
+From              : u_block1/core/input_fifo/rd_ptr_0_s22
+To                : u_block1/core/sb/mem1_odd_mem1_odd_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT        LOC                             NODE                       
+ ======== ======= ====== ==== ======== =============== ================================================ 
+  0.000    0.000                                        active clock edge time                          
+  0.000    0.000                                        clk                                             
+  0.000    0.000   tCL    RR   1        IOT27[A]        clk_ibuf/I                                      
+  4.230    4.230   tINS   RR   373      IOT27[A]        clk_ibuf/O                                      
+  6.501    2.271   tNET   RR   1        R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/CLK       
+  6.733    0.232   tC2Q   RF   18       R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/Q         
+  7.943    1.210   tNET   FF   4        R24C26          u_block1/core/input_fifo/mem_mem_0_0_s/RAD[0]   
+  8.460    0.517   tINS   FF   1        R24C26          u_block1/core/input_fifo/mem_mem_0_0_s/DO[2]    
+  9.144    0.684   tNET   FF   1        R31C28[2][A]    u_block1/core/input_fifo/mem_DOL_6_G[0]_s1/I0   
+  9.661    0.517   tINS   FF   1        R31C28[2][A]    u_block1/core/input_fifo/mem_DOL_6_G[0]_s1/F    
+  9.661    0.000   tNET   FF   1        R31C28[2][A]    u_block1/core/input_fifo/mem_DOL_6_G[0]_s0/I0   
+  9.764    0.103   tINS   FF   4        R31C28[2][A]    u_block1/core/input_fifo/mem_DOL_6_G[0]_s0/O    
+  12.176   2.412   tNET   FF   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[2]  
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT        LOC                            NODE                       
+ ======== ======== ====== ==== ======== =============== =============================================== 
+  10.000   10.000                                        active clock edge time                         
+  10.000   0.000                                         clk                                            
+  10.000   0.000    tCL    RR   1        IOT27[A]        clk_ibuf/I                                     
+  14.230   4.230    tINS   RR   373      IOT27[A]        clk_ibuf/O                                     
+  16.501   2.271    tNET   RR   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/CLKA  
+  16.467   -0.035   tSu         1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 3
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 1.137 20.037%, 
+                    route: 4.305 75.874%, 
+                    tC2Q: 0.232 4.089%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path20						
+Path Summary:
+Slack             : 4.342
+Data Arrival Time : 12.125
+Data Required Time: 16.467
+From              : u_block1/core/input_fifo/rd_ptr_0_s22
+To                : u_block1/core/sb/mem0_even_mem0_even_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                              NODE                        
+ ======== ======= ====== ==== ======== ============== ================================================== 
+  0.000    0.000                                       active clock edge time                            
+  0.000    0.000                                       clk                                               
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                        
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                                        
+  6.501    2.271   tNET   RR   1        R27C30[1][B]   u_block1/core/input_fifo/rd_ptr_0_s22/CLK         
+  6.733    0.232   tC2Q   RF   18       R27C30[1][B]   u_block1/core/input_fifo/rd_ptr_0_s22/Q           
+  8.734    2.001   tNET   FF   4        R33C27         u_block1/core/input_fifo/mem_mem_1_1_s/RAD[0]     
+  9.251    0.517   tINS   FF   1        R33C27         u_block1/core/input_fifo/mem_mem_1_1_s/DO[3]      
+  9.741    0.490   tNET   FF   1        R33C30[0][B]   u_block1/core/input_fifo/mem_DOL_21_G[0]_s2/I0    
+  10.296   0.555   tINS   FF   1        R33C30[0][B]   u_block1/core/input_fifo/mem_DOL_21_G[0]_s2/F     
+  10.296   0.000   tNET   FF   1        R33C30[0][A]   u_block1/core/input_fifo/mem_DOL_21_G[0]_s0/I1    
+  10.399   0.103   tINS   FF   4        R33C30[0][A]   u_block1/core/input_fifo/mem_DOL_21_G[0]_s0/O     
+  12.125   1.726   tNET   FF   1        BSRAM_R28[6]   u_block1/core/sb/mem0_even_mem0_even_0_0_s/DI[7]  
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                             NODE                        
+ ======== ======== ====== ==== ======== ============== ================================================= 
+  10.000   10.000                                       active clock edge time                           
+  10.000   0.000                                        clk                                              
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                                       
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                                       
+  16.501   2.271    tNET   RR   1        BSRAM_R28[6]   u_block1/core/sb/mem0_even_mem0_even_0_0_s/CLKA  
+  16.467   -0.035   tSu         1        BSRAM_R28[6]   u_block1/core/sb/mem0_even_mem0_even_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 3
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 1.175 20.894%, 
+                    route: 4.217 74.980%, 
+                    tC2Q: 0.232 4.126%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path21						
+Path Summary:
+Slack             : 4.465
+Data Arrival Time : 12.001
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/bit_timer_29_s1
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][B]   u_block1/u_rx/n1212_s2/I1          
+  10.200   0.453   tINS   FF   15       R22C23[3][B]   u_block1/u_rx/n1212_s2/F           
+  10.882   0.682   tNET   FF   1        R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/I0      
+  11.452   0.570   tINS   FR   14       R24C26[3][B]   u_block1/u_rx/bit_idx_0_s4/F       
+  11.630   0.178   tNET   RR   1        R23C26[0][B]   u_block1/u_rx/n227_s2/I3           
+  12.001   0.371   tINS   RF   1        R23C26[0][B]   u_block1/u_rx/n227_s2/F            
+  12.001   0.000   tNET   FF   1        R23C26[0][B]   u_block1/u_rx/bit_timer_29_s1/D    
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======== ====== ==== ======== ============== =================================== 
+  10.000   10.000                                       active clock edge time             
+  10.000   0.000                                        clk                                
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  16.501   2.271    tNET   RR   1        R23C26[0][B]   u_block1/u_rx/bit_timer_29_s1/CLK  
+  16.466   -0.035   tSu         1        R23C26[0][B]   u_block1/u_rx/bit_timer_29_s1      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 7
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.855 51.908%, 
+                    route: 2.413 43.874%, 
+                    tC2Q: 0.232 4.218%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path22						
+Path Summary:
+Slack             : 4.485
+Data Arrival Time : 11.981
+Data Required Time: 16.467
+From              : u_block1/core/input_fifo/rd_ptr_0_s22
+To                : u_block1/core/sb/mem1_odd_mem1_odd_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT        LOC                             NODE                       
+ ======== ======= ====== ==== ======== =============== ================================================ 
+  0.000    0.000                                        active clock edge time                          
+  0.000    0.000                                        clk                                             
+  0.000    0.000   tCL    RR   1        IOT27[A]        clk_ibuf/I                                      
+  4.230    4.230   tINS   RR   373      IOT27[A]        clk_ibuf/O                                      
+  6.501    2.271   tNET   RR   1        R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/CLK       
+  6.733    0.232   tC2Q   RF   18       R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/Q         
+  8.734    2.001   tNET   FF   4        R33C27          u_block1/core/input_fifo/mem_mem_1_1_s/RAD[0]   
+  9.251    0.517   tINS   FF   1        R33C27          u_block1/core/input_fifo/mem_mem_1_1_s/DO[3]    
+  9.741    0.490   tNET   FF   1        R33C30[0][B]    u_block1/core/input_fifo/mem_DOL_21_G[0]_s2/I0  
+  10.296   0.555   tINS   FF   1        R33C30[0][B]    u_block1/core/input_fifo/mem_DOL_21_G[0]_s2/F   
+  10.296   0.000   tNET   FF   1        R33C30[0][A]    u_block1/core/input_fifo/mem_DOL_21_G[0]_s0/I1  
+  10.399   0.103   tINS   FF   4        R33C30[0][A]    u_block1/core/input_fifo/mem_DOL_21_G[0]_s0/O   
+  11.981   1.583   tNET   FF   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[7]  
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT        LOC                            NODE                       
+ ======== ======== ====== ==== ======== =============== =============================================== 
+  10.000   10.000                                        active clock edge time                         
+  10.000   0.000                                         clk                                            
+  10.000   0.000    tCL    RR   1        IOT27[A]        clk_ibuf/I                                     
+  14.230   4.230    tINS   RR   373      IOT27[A]        clk_ibuf/O                                     
+  16.501   2.271    tNET   RR   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/CLKA  
+  16.467   -0.035   tSu         1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 3
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 1.175 21.441%, 
+                    route: 4.073 74.325%, 
+                    tC2Q: 0.232 4.234%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path23						
+Path Summary:
+Slack             : 4.513
+Data Arrival Time : 11.954
+Data Required Time: 16.467
+From              : u_block1/core/input_fifo/rd_ptr_0_s22
+To                : u_block1/core/sb/mem1_odd_mem1_odd_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT        LOC                             NODE                       
+ ======== ======= ====== ==== ======== =============== ================================================ 
+  0.000    0.000                                        active clock edge time                          
+  0.000    0.000                                        clk                                             
+  0.000    0.000   tCL    RR   1        IOT27[A]        clk_ibuf/I                                      
+  4.230    4.230   tINS   RR   373      IOT27[A]        clk_ibuf/O                                      
+  6.501    2.271   tNET   RR   1        R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/CLK       
+  6.733    0.232   tC2Q   RF   18       R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/Q         
+  8.734    2.001   tNET   FF   4        R33C27          u_block1/core/input_fifo/mem_mem_1_1_s/RAD[0]   
+  9.251    0.517   tINS   FF   1        R33C27          u_block1/core/input_fifo/mem_mem_1_1_s/DO[1]    
+  9.664    0.413   tNET   FF   1        R33C30[2][B]    u_block1/core/input_fifo/mem_DOL_15_G[0]_s2/I0  
+  10.181   0.517   tINS   FF   1        R33C30[2][B]    u_block1/core/input_fifo/mem_DOL_15_G[0]_s2/F   
+  10.181   0.000   tNET   FF   1        R33C30[2][A]    u_block1/core/input_fifo/mem_DOL_15_G[0]_s0/I1  
+  10.284   0.103   tINS   FF   4        R33C30[2][A]    u_block1/core/input_fifo/mem_DOL_15_G[0]_s0/O   
+  11.954   1.670   tNET   FF   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[5]  
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT        LOC                            NODE                       
+ ======== ======== ====== ==== ======== =============== =============================================== 
+  10.000   10.000                                        active clock edge time                         
+  10.000   0.000                                         clk                                            
+  10.000   0.000    tCL    RR   1        IOT27[A]        clk_ibuf/I                                     
+  14.230   4.230    tINS   RR   373      IOT27[A]        clk_ibuf/O                                     
+  16.501   2.271    tNET   RR   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/CLKA  
+  16.467   -0.035   tSu         1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 3
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 1.137 20.853%, 
+                    route: 4.084 74.892%, 
+                    tC2Q: 0.232 4.255%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path24						
+Path Summary:
+Slack             : 4.582
+Data Arrival Time : 11.884
+Data Required Time: 16.467
+From              : u_block1/core/input_fifo/rd_ptr_0_s22
+To                : u_block1/core/sb/mem1_odd_mem1_odd_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT        LOC                             NODE                       
+ ======== ======= ====== ==== ======== =============== ================================================ 
+  0.000    0.000                                        active clock edge time                          
+  0.000    0.000                                        clk                                             
+  0.000    0.000   tCL    RR   1        IOT27[A]        clk_ibuf/I                                      
+  4.230    4.230   tINS   RR   373      IOT27[A]        clk_ibuf/O                                      
+  6.501    2.271   tNET   RR   1        R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/CLK       
+  6.733    0.232   tC2Q   RF   18       R27C30[1][B]    u_block1/core/input_fifo/rd_ptr_0_s22/Q         
+  8.734    2.001   tNET   FF   4        R33C27          u_block1/core/input_fifo/mem_mem_1_1_s/RAD[0]   
+  9.251    0.517   tINS   FF   1        R33C27          u_block1/core/input_fifo/mem_mem_1_1_s/DO[0]    
+  9.741    0.490   tNET   FF   1        R33C30[3][B]    u_block1/core/input_fifo/mem_DOL_12_G[0]_s2/I0  
+  10.112   0.371   tINS   FF   1        R33C30[3][B]    u_block1/core/input_fifo/mem_DOL_12_G[0]_s2/F   
+  10.112   0.000   tNET   FF   1        R33C30[3][A]    u_block1/core/input_fifo/mem_DOL_12_G[0]_s0/I1  
+  10.215   0.103   tINS   FF   4        R33C30[3][A]    u_block1/core/input_fifo/mem_DOL_12_G[0]_s0/O   
+  11.884   1.670   tNET   FF   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/DI[4]  
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT        LOC                            NODE                       
+ ======== ======== ====== ==== ======== =============== =============================================== 
+  10.000   10.000                                        active clock edge time                         
+  10.000   0.000                                         clk                                            
+  10.000   0.000    tCL    RR   1        IOT27[A]        clk_ibuf/I                                     
+  14.230   4.230    tINS   RR   373      IOT27[A]        clk_ibuf/O                                     
+  16.501   2.271    tNET   RR   1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s/CLKA  
+  16.467   -0.035   tSu         1        BSRAM_R28[11]   u_block1/core/sb/mem1_odd_mem1_odd_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 3
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 0.991 18.409%, 
+                    route: 4.160 77.281%, 
+                    tC2Q: 0.232 4.310%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+						Path25						
+Path Summary:
+Slack             : 4.653
+Data Arrival Time : 11.813
+Data Required Time: 16.466
+From              : u_block1/u_rx/bit_timer_21_s1
+To                : u_block1/u_rx/receiving_s6
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+    AT     DELAY   TYPE   RF   FANOUT       LOC                      NODE                 
+ ======== ======= ====== ==== ======== ============== =================================== 
+  0.000    0.000                                       active clock edge time             
+  0.000    0.000                                       clk                                
+  0.000    0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                         
+  4.230    4.230   tINS   RR   373      IOT27[A]       clk_ibuf/O                         
+  6.501    2.271   tNET   RR   1        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/CLK  
+  6.733    0.232   tC2Q   RF   3        R22C23[2][A]   u_block1/u_rx/bit_timer_21_s1/Q    
+  7.468    0.735   tNET   FF   1        R24C25[3][A]   u_block1/u_rx/n233_s3/I2           
+  7.921    0.453   tINS   FF   3        R24C25[3][A]   u_block1/u_rx/n233_s3/F            
+  8.109    0.189   tNET   FF   1        R23C25[3][A]   u_block1/u_rx/n231_s3/I0           
+  8.562    0.453   tINS   FF   4        R23C25[3][A]   u_block1/u_rx/n231_s3/F            
+  8.990    0.428   tNET   FF   1        R22C24[3][B]   u_block1/u_rx/n1212_s3/I3          
+  9.545    0.555   tINS   FF   6        R22C24[3][B]   u_block1/u_rx/n1212_s3/F           
+  9.747    0.202   tNET   FF   1        R22C23[3][A]   u_block1/u_rx/receiving_s8/I2      
+  10.209   0.462   tINS   FR   2        R22C23[3][A]   u_block1/u_rx/receiving_s8/F       
+  10.385   0.176   tNET   RR   1        R23C23[3][B]   u_block1/u_rx/bit_timer_5_s3/I0    
+  10.838   0.453   tINS   RF   32       R23C23[3][B]   u_block1/u_rx/bit_timer_5_s3/F     
+  11.813   0.976   tNET   FF   1        R22C24[2][A]   u_block1/u_rx/receiving_s6/D       
+
+Data Required Path:
+    AT     DELAY    TYPE   RF   FANOUT       LOC                     NODE               
+ ======== ======== ====== ==== ======== ============== ================================ 
+  10.000   10.000                                       active clock edge time          
+  10.000   0.000                                        clk                             
+  10.000   0.000    tCL    RR   1        IOT27[A]       clk_ibuf/I                      
+  14.230   4.230    tINS   RR   373      IOT27[A]       clk_ibuf/O                      
+  16.501   2.271    tNET   RR   1        R22C24[2][A]   u_block1/u_rx/receiving_s6/CLK  
+  16.466   -0.035   tSu         1        R22C24[2][A]   u_block1/u_rx/receiving_s6      
+
+Path Statistics:
+Clock Skew: 0.000
+Setup Relationship: 10.000
+Logic Level: 6
+Arrival Clock Path delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+Arrival Data Path Delay: (cell: 2.376 44.727%, 
+                    route: 2.704 50.906%, 
+                    tC2Q: 0.232 4.367%)
+Required Clock Path Delay: (cell: 4.230 65.063%, 
+                     route: 2.271 34.937%)
+
+3.3.2 Hold Analysis Report
+Report Command:report_timing -hold -max_paths 25 -max_common_paths 1
+						Path1						
+Path Summary:
+Slack             : 0.074
+Data Arrival Time : 4.961
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_5_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R27C35[1][A]   u_block2/u_permutation_controller/wr_imag_q_5_s0/CLK                   
+  4.839   0.201   tC2Q   RF   1        R27C35[1][A]   u_block2/u_permutation_controller/wr_imag_q_5_s0/Q                     
+  4.961   0.122   tNET   FF   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[5]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.122 37.751%, 
+                    tC2Q: 0.201 62.249%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path2						
+Path Summary:
+Slack             : 0.074
+Data Arrival Time : 4.961
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_1_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R27C35[0][A]   u_block2/u_permutation_controller/wr_imag_q_1_s0/CLK                   
+  4.839   0.201   tC2Q   RF   1        R27C35[0][A]   u_block2/u_permutation_controller/wr_imag_q_1_s0/Q                     
+  4.961   0.122   tNET   FF   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[1]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.122 37.751%, 
+                    tC2Q: 0.201 62.249%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path3						
+Path Summary:
+Slack             : 0.074
+Data Arrival Time : 4.961
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_11_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R27C33[2][A]   u_block2/u_permutation_controller/wr_real_q_11_s0/CLK                   
+  4.839   0.201   tC2Q   RF   1        R27C33[2][A]   u_block2/u_permutation_controller/wr_real_q_11_s0/Q                     
+  4.961   0.122   tNET   FF   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[11]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.122 37.751%, 
+                    tC2Q: 0.201 62.249%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path4						
+Path Summary:
+Slack             : 0.074
+Data Arrival Time : 4.961
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_10_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R27C33[2][B]   u_block2/u_permutation_controller/wr_real_q_10_s0/CLK                   
+  4.839   0.201   tC2Q   RF   1        R27C33[2][B]   u_block2/u_permutation_controller/wr_real_q_10_s0/Q                     
+  4.961   0.122   tNET   FF   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[10]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.122 37.751%, 
+                    tC2Q: 0.201 62.249%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path5						
+Path Summary:
+Slack             : 0.074
+Data Arrival Time : 4.961
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_6_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R27C32[1][A]   u_block2/u_permutation_controller/wr_real_q_6_s0/CLK                   
+  4.839   0.201   tC2Q   RF   1        R27C32[1][A]   u_block2/u_permutation_controller/wr_real_q_6_s0/Q                     
+  4.961   0.122   tNET   FF   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[6]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.122 37.751%, 
+                    tC2Q: 0.201 62.249%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path6						
+Path Summary:
+Slack             : 0.076
+Data Arrival Time : 4.963
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_13_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R27C33[1][B]   u_block2/u_permutation_controller/wr_real_q_13_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R27C33[1][B]   u_block2/u_permutation_controller/wr_real_q_13_s0/Q                     
+  4.963   0.123   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[13]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.123 37.889%, 
+                    tC2Q: 0.202 62.111%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path7						
+Path Summary:
+Slack             : 0.202
+Data Arrival Time : 5.089
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_8_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R30C35[2][A]   u_block2/u_permutation_controller/wr_imag_q_8_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C35[2][A]   u_block2/u_permutation_controller/wr_imag_q_8_s0/Q                     
+  5.089   0.249   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[8]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.249 55.230%, 
+                    tC2Q: 0.202 44.770%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path8						
+Path Summary:
+Slack             : 0.202
+Data Arrival Time : 5.089
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_6_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R27C35[0][B]   u_block2/u_permutation_controller/wr_imag_q_6_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R27C35[0][B]   u_block2/u_permutation_controller/wr_imag_q_6_s0/Q                     
+  5.089   0.249   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[6]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.249 55.230%, 
+                    tC2Q: 0.202 44.770%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path9						
+Path Summary:
+Slack             : 0.202
+Data Arrival Time : 5.089
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_3_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R30C35[2][B]   u_block2/u_permutation_controller/wr_imag_q_3_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C35[2][B]   u_block2/u_permutation_controller/wr_imag_q_3_s0/Q                     
+  5.089   0.249   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[3]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.249 55.230%, 
+                    tC2Q: 0.202 44.770%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path10						
+Path Summary:
+Slack             : 0.202
+Data Arrival Time : 5.089
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_15_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R30C33[2][A]   u_block2/u_permutation_controller/wr_real_q_15_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C33[2][A]   u_block2/u_permutation_controller/wr_real_q_15_s0/Q                     
+  5.089   0.249   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[15]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.249 55.230%, 
+                    tC2Q: 0.202 44.770%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path11						
+Path Summary:
+Slack             : 0.202
+Data Arrival Time : 5.089
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_9_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R30C33[0][A]   u_block2/u_permutation_controller/wr_real_q_9_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C33[0][A]   u_block2/u_permutation_controller/wr_real_q_9_s0/Q                     
+  5.089   0.249   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[9]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.249 55.230%, 
+                    tC2Q: 0.202 44.770%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path12						
+Path Summary:
+Slack             : 0.211
+Data Arrival Time : 4.966
+Data Required Time: 4.756
+From              : u_block2/u_permutation_controller/rd_addr_3_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R29C35[0][A]   u_block2/u_permutation_controller/rd_addr_3_s0/CLK                      
+  4.839   0.201   tC2Q   RF   2        R29C35[0][A]   u_block2/u_permutation_controller/rd_addr_3_s0/Q                        
+  4.966   0.128   tNET   FF   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/ADB[7]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKB  
+  4.756   0.118   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.128 38.816%, 
+                    tC2Q: 0.201 61.184%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path13						
+Path Summary:
+Slack             : 0.211
+Data Arrival Time : 4.966
+Data Required Time: 4.756
+From              : u_block2/u_permutation_controller/rd_addr_0_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R29C33[0][A]   u_block2/u_permutation_controller/rd_addr_0_s0/CLK                      
+  4.839   0.201   tC2Q   RF   2        R29C33[0][A]   u_block2/u_permutation_controller/rd_addr_0_s0/Q                        
+  4.966   0.128   tNET   FF   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/ADB[4]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKB  
+  4.756   0.118   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.128 38.816%, 
+                    tC2Q: 0.201 61.184%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path14						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_15_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R29C35[2][A]   u_block2/u_permutation_controller/wr_imag_q_15_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R29C35[2][A]   u_block2/u_permutation_controller/wr_imag_q_15_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[15]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path15						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_14_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R29C35[2][B]   u_block2/u_permutation_controller/wr_imag_q_14_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R29C35[2][B]   u_block2/u_permutation_controller/wr_imag_q_14_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[14]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path16						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_12_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R30C35[0][A]   u_block2/u_permutation_controller/wr_imag_q_12_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C35[0][A]   u_block2/u_permutation_controller/wr_imag_q_12_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[12]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path17						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_11_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R30C35[0][B]   u_block2/u_permutation_controller/wr_imag_q_11_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C35[0][B]   u_block2/u_permutation_controller/wr_imag_q_11_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[11]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path18						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_10_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R30C35[1][A]   u_block2/u_permutation_controller/wr_imag_q_10_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C35[1][A]   u_block2/u_permutation_controller/wr_imag_q_10_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[10]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path19						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_imag_q_9_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R30C35[1][B]   u_block2/u_permutation_controller/wr_imag_q_9_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C35[1][B]   u_block2/u_permutation_controller/wr_imag_q_9_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/DI[9]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[9]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_1_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path20						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_14_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                         NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================== 
+  0.000   0.000                                       active clock edge time                                                  
+  0.000   0.000                                       clk                                                                     
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                              
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                              
+  4.638   1.511   tNET   RR   1        R27C32[1][B]   u_block2/u_permutation_controller/wr_real_q_14_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R27C32[1][B]   u_block2/u_permutation_controller/wr_real_q_14_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[14]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path21						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_8_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R26C33[0][A]   u_block2/u_permutation_controller/wr_real_q_8_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R26C33[0][A]   u_block2/u_permutation_controller/wr_real_q_8_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[8]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path22						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_7_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R27C33[0][A]   u_block2/u_permutation_controller/wr_real_q_7_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R27C33[0][A]   u_block2/u_permutation_controller/wr_real_q_7_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[7]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path23						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_1_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R30C31[1][A]   u_block2/u_permutation_controller/wr_real_q_1_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C31[1][A]   u_block2/u_permutation_controller/wr_real_q_1_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[1]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path24						
+Path Summary:
+Slack             : 0.213
+Data Arrival Time : 5.100
+Data Required Time: 4.887
+From              : u_block2/u_permutation_controller/wr_real_q_0_s0
+To                : u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                   
+ ======= ======= ====== ==== ======== ============== ======================================================================= 
+  0.000   0.000                                       active clock edge time                                                 
+  0.000   0.000                                       clk                                                                    
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                             
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                             
+  4.638   1.511   tNET   RR   1        R30C31[1][B]   u_block2/u_permutation_controller/wr_real_q_0_s0/CLK                   
+  4.840   0.202   tC2Q   RR   1        R30C31[1][B]   u_block2/u_permutation_controller/wr_real_q_0_s0/Q                     
+  5.100   0.260   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/DI[0]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                                        NODE                                  
+ ======= ======= ====== ==== ======== ============== ====================================================================== 
+  0.000   0.000                                       active clock edge time                                                
+  0.000   0.000                                       clk                                                                   
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                                            
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                                            
+  4.638   1.511   tNET   RR   1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s/CLKA  
+  4.887   0.249   tHld        1        BSRAM_R28[8]   u_block2/u_permutation_controller/u_ram/mem_real_mem_real_0_0_s       
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.260 56.314%, 
+                    tC2Q: 0.202 43.686%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+						Path25						
+Path Summary:
+Slack             : 0.316
+Data Arrival Time : 4.964
+Data Required Time: 4.648
+From              : u_block1/u_rx/sample_out_7_s0
+To                : u_block1/core/input_fifo/mem_mem_0_1_s
+Launch Clk        : clk:[R]
+Latch Clk         : clk:[R]
+
+Data Arrival Path:
+   AT     DELAY   TYPE   RF   FANOUT       LOC                            NODE                      
+ ======= ======= ====== ==== ======== ============== ============================================== 
+  0.000   0.000                                       active clock edge time                        
+  0.000   0.000                                       clk                                           
+  0.000   0.000   tCL    RR   1        IOT27[A]       clk_ibuf/I                                    
+  3.126   3.126   tINS   RR   373      IOT27[A]       clk_ibuf/O                                    
+  4.638   1.511   tNET   RR   1        R31C26[0][A]   u_block1/u_rx/sample_out_7_s0/CLK             
+  4.839   0.201   tC2Q   RF   4        R31C26[0][A]   u_block1/u_rx/sample_out_7_s0/Q               
+  4.964   0.125   tNET   FF   1        R32C26         u_block1/core/input_fifo/mem_mem_0_1_s/DI[3]  
+
+Data Required Path:
+   AT     DELAY   TYPE   RF   FANOUT     LOC                         NODE                     
+ ======= ======= ====== ==== ======== ========== ============================================ 
+  0.000   0.000                                   active clock edge time                      
+  0.000   0.000                                   clk                                         
+  0.000   0.000   tCL    RR   1        IOT27[A]   clk_ibuf/I                                  
+  3.126   3.126   tINS   RR   373      IOT27[A]   clk_ibuf/O                                  
+  4.638   1.511   tNET   RR   1        R32C26     u_block1/core/input_fifo/mem_mem_0_1_s/CLK  
+  4.648   0.010   tHld        1        R32C26     u_block1/core/input_fifo/mem_mem_0_1_s      
+
+Path Statistics:
+Clock Skew: 0.000
+Hold Relationship: 0.000
+Logic Level: 1
+Arrival Clock Path delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+Arrival Data Path Delay: (cell: 0.000 0.000%, 
+                    route: 0.125 38.377%, 
+                    tC2Q: 0.201 61.623%)
+Required Clock Path Delay: (cell: 3.126 67.413%, 
+                     route: 1.511 32.587%)
+
+3.3.3 Recovery Analysis Report
+Report Command:report_timing -recovery -max_paths 25 -max_common_paths 1
+No recovery paths to report!
+3.3.4 Removal Analysis Report
+Report Command:report_timing -removal -max_paths 25 -max_common_paths 1
+No removal paths to report!
+3.4 Minimum Pulse Width Report
+Report Command:report_min_pulse_width -nworst 10 -detail
+
+								MPW1
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/rx_sync1_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF               NODE               
+ ======= ======= ====== ==== =============================== 
+  0.000   0.000               active clock edge time         
+  0.000   0.000               clk                            
+  0.000   0.000   tCL    RR   clk_ibuf/I                     
+  4.230   4.230   tINS   RR   clk_ibuf/O                     
+  6.501   2.271   tNET   RR   u_block1/u_rx/rx_sync1_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF               NODE               
+ ======= ======= ====== ==== =============================== 
+  5.000   0.000               active clock edge time         
+  5.000   0.000               clk                            
+  5.000   0.000   tCL    FF   clk_ibuf/I                     
+  7.140   2.140   tINS   FF   clk_ibuf/O                     
+  8.653   1.514   tNET   FF   u_block1/u_rx/rx_sync1_s0/CLK  
+
+								MPW2
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/rx_shift_7_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                NODE                
+ ======= ======= ====== ==== ================================= 
+  0.000   0.000               active clock edge time           
+  0.000   0.000               clk                              
+  0.000   0.000   tCL    RR   clk_ibuf/I                       
+  4.230   4.230   tINS   RR   clk_ibuf/O                       
+  6.501   2.271   tNET   RR   u_block1/u_rx/rx_shift_7_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                NODE                
+ ======= ======= ====== ==== ================================= 
+  5.000   0.000               active clock edge time           
+  5.000   0.000               clk                              
+  5.000   0.000   tCL    FF   clk_ibuf/I                       
+  7.140   2.140   tINS   FF   clk_ibuf/O                       
+  8.653   1.514   tNET   FF   u_block1/u_rx/rx_shift_7_s0/CLK  
+
+								MPW3
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/rx_shift_5_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                NODE                
+ ======= ======= ====== ==== ================================= 
+  0.000   0.000               active clock edge time           
+  0.000   0.000               clk                              
+  0.000   0.000   tCL    RR   clk_ibuf/I                       
+  4.230   4.230   tINS   RR   clk_ibuf/O                       
+  6.501   2.271   tNET   RR   u_block1/u_rx/rx_shift_5_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                NODE                
+ ======= ======= ====== ==== ================================= 
+  5.000   0.000               active clock edge time           
+  5.000   0.000               clk                              
+  5.000   0.000   tCL    FF   clk_ibuf/I                       
+  7.140   2.140   tINS   FF   clk_ibuf/O                       
+  8.653   1.514   tNET   FF   u_block1/u_rx/rx_shift_5_s0/CLK  
+
+								MPW4
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/rx_shift_1_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                NODE                
+ ======= ======= ====== ==== ================================= 
+  0.000   0.000               active clock edge time           
+  0.000   0.000               clk                              
+  0.000   0.000   tCL    RR   clk_ibuf/I                       
+  4.230   4.230   tINS   RR   clk_ibuf/O                       
+  6.501   2.271   tNET   RR   u_block1/u_rx/rx_shift_1_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                NODE                
+ ======= ======= ====== ==== ================================= 
+  5.000   0.000               active clock edge time           
+  5.000   0.000               clk                              
+  5.000   0.000   tCL    FF   clk_ibuf/I                       
+  7.140   2.140   tINS   FF   clk_ibuf/O                       
+  8.653   1.514   tNET   FF   u_block1/u_rx/rx_shift_1_s0/CLK  
+
+								MPW5
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/rx_byte_reg_2_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                  NODE                 
+ ======= ======= ====== ==== ==================================== 
+  0.000   0.000               active clock edge time              
+  0.000   0.000               clk                                 
+  0.000   0.000   tCL    RR   clk_ibuf/I                          
+  4.230   4.230   tINS   RR   clk_ibuf/O                          
+  6.501   2.271   tNET   RR   u_block1/u_rx/rx_byte_reg_2_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                  NODE                 
+ ======= ======= ====== ==== ==================================== 
+  5.000   0.000               active clock edge time              
+  5.000   0.000               clk                                 
+  5.000   0.000   tCL    FF   clk_ibuf/I                          
+  7.140   2.140   tINS   FF   clk_ibuf/O                          
+  8.653   1.514   tNET   FF   u_block1/u_rx/rx_byte_reg_2_s0/CLK  
+
+								MPW6
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/payload_bytes_expected_7_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                       NODE                       
+ ======= ======= ====== ==== =============================================== 
+  0.000   0.000               active clock edge time                         
+  0.000   0.000               clk                                            
+  0.000   0.000   tCL    RR   clk_ibuf/I                                     
+  4.230   4.230   tINS   RR   clk_ibuf/O                                     
+  6.501   2.271   tNET   RR   u_block1/u_rx/payload_bytes_expected_7_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                       NODE                       
+ ======= ======= ====== ==== =============================================== 
+  5.000   0.000               active clock edge time                         
+  5.000   0.000               clk                                            
+  5.000   0.000   tCL    FF   clk_ibuf/I                                     
+  7.140   2.140   tINS   FF   clk_ibuf/O                                     
+  8.653   1.514   tNET   FF   u_block1/u_rx/payload_bytes_expected_7_s0/CLK  
+
+								MPW7
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/payload_bytes_count_6_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                      NODE                     
+ ======= ======= ====== ==== ============================================ 
+  0.000   0.000               active clock edge time                      
+  0.000   0.000               clk                                         
+  0.000   0.000   tCL    RR   clk_ibuf/I                                  
+  4.230   4.230   tINS   RR   clk_ibuf/O                                  
+  6.501   2.271   tNET   RR   u_block1/u_rx/payload_bytes_count_6_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                      NODE                     
+ ======= ======= ====== ==== ============================================ 
+  5.000   0.000               active clock edge time                      
+  5.000   0.000               clk                                         
+  5.000   0.000   tCL    FF   clk_ibuf/I                                  
+  7.140   2.140   tINS   FF   clk_ibuf/O                                  
+  8.653   1.514   tNET   FF   u_block1/u_rx/payload_bytes_count_6_s0/CLK  
+
+								MPW8
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block1/u_rx/bit_timer_8_s1
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                 NODE                
+ ======= ======= ====== ==== ================================== 
+  0.000   0.000               active clock edge time            
+  0.000   0.000               clk                               
+  0.000   0.000   tCL    RR   clk_ibuf/I                        
+  4.230   4.230   tINS   RR   clk_ibuf/O                        
+  6.501   2.271   tNET   RR   u_block1/u_rx/bit_timer_8_s1/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                 NODE                
+ ======= ======= ====== ==== ================================== 
+  5.000   0.000               active clock edge time            
+  5.000   0.000               clk                               
+  5.000   0.000   tCL    FF   clk_ibuf/I                        
+  7.140   2.140   tINS   FF   clk_ibuf/O                        
+  8.653   1.514   tNET   FF   u_block1/u_rx/bit_timer_8_s1/CLK  
+
+								MPW9
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block2/u_permutation_controller/wr_addr_9_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                          NODE                         
+ ======= ======= ====== ==== ==================================================== 
+  0.000   0.000               active clock edge time                              
+  0.000   0.000               clk                                                 
+  0.000   0.000   tCL    RR   clk_ibuf/I                                          
+  4.230   4.230   tINS   RR   clk_ibuf/O                                          
+  6.501   2.271   tNET   RR   u_block2/u_permutation_controller/wr_addr_9_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                          NODE                         
+ ======= ======= ====== ==== ==================================================== 
+  5.000   0.000               active clock edge time                              
+  5.000   0.000               clk                                                 
+  5.000   0.000   tCL    FF   clk_ibuf/I                                          
+  7.140   2.140   tINS   FF   clk_ibuf/O                                          
+  8.653   1.514   tNET   FF   u_block2/u_permutation_controller/wr_addr_9_s0/CLK  
+
+								MPW10
+MPW Summary:
+Slack:          1.152
+Actual Width:   2.152
+Required Width: 1.000
+Type:           High Pulse Width
+Clock:          clk
+Objects:        u_block2/u_permutation_controller/wr_en_s0
+
+Late clock Path:
+   AT     DELAY   TYPE   RF                        NODE                       
+ ======= ======= ====== ==== ================================================ 
+  0.000   0.000               active clock edge time                          
+  0.000   0.000               clk                                             
+  0.000   0.000   tCL    RR   clk_ibuf/I                                      
+  4.230   4.230   tINS   RR   clk_ibuf/O                                      
+  6.501   2.271   tNET   RR   u_block2/u_permutation_controller/wr_en_s0/CLK  
+
+Early clock Path:
+   AT     DELAY   TYPE   RF                        NODE                       
+ ======= ======= ====== ==== ================================================ 
+  5.000   0.000               active clock edge time                          
+  5.000   0.000               clk                                             
+  5.000   0.000   tCL    FF   clk_ibuf/I                                      
+  7.140   2.140   tINS   FF   clk_ibuf/O                                      
+  8.653   1.514   tNET   FF   u_block2/u_permutation_controller/wr_en_s0/CLK  
+
+3.5 High Fanout Nets Report
+Report Command:report_high_fanout_nets -max_nets 10
+  FANOUT                       NET NAME                       WORST SLACK   MAX DELAY  
+ ======== ================================================== ============= =========== 
+  373      clk_d                                              3.633         2.274      
+  40       u_block1/u_rx/state[2]                             5.629         0.835      
+  34       u_block1/core/pc/n86_10                            7.526         1.297      
+  33       u_block1/core/input_fifo/rd_ptr[5]                 5.580         1.084      
+  32       u_block2/u_permutation_controller/n351_10          4.982         4.238      
+  32       u_block2/u_permutation_controller/wr_real_q_15_6   5.139         1.817      
+  32       u_block1/u_rx/n303_9                               4.653         0.976      
+  32       u_block1/core/sb/n195_1                            8.111         1.052      
+  32       u_block1/u_rx/have_pending_9                       7.459         1.085      
+  32       u_block2/u_permutation_controller/state[0]         5.533         1.256      
+
+3.6 Route Congestions Report
+Report Command:report_route_congestion -max_grids 10
+  GRID LOC   ROUTE CONGESTIONS  
+ ========== =================== 
+  R2C2       1.000              
+  R2C5       1.000              
+  R2C7       1.000              
+  R2C8       1.000              
+  R2C24      1.000              
+  R3C2       1.000              
+  R4C12      1.000              
+  R6C32      1.000              
+  R12C14     1.000              
+  R42C31     1.000              
+
+3.7 Timing Exceptions Report
+3.7.1 Setup Analysis Report
+Report Command:report_exceptions -setup -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+
+3.7.2 Hold Analysis Report
+Report Command:report_exceptions -hold -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+
+3.7.3 Recovery Analysis Report
+Report Command:report_exceptions -recovery -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+
+3.7.4 Removal Analysis Report
+Report Command:report_exceptions -removal -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+
+3.8 Timing Constraints Report
+  SDC Command Type   State   Detail Command  
+ ================== ======= ================ 
+
