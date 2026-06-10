@@ -221,3 +221,7 @@ __marimo__/
 **/impl/
 # macOS
 .DS_Store
+
+# Gowin IDE user/local settings
+*.gprj.user
+**/.user
