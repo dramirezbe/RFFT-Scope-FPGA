@@ -1,0 +1,39 @@
+// ============================================================
+// Pin constraints - Block1+Block2 fusion (Tang Primer 20K Dock)
+// Device: GW2A-LV18PG256C8/I7
+//
+// !! ADJUST TO YOUR WIRING !!
+// Only "clk" (H11, on-board 27/50 MHz oscillator input used by the
+// lcd/sin_lcd examples) is a verified assignment. The remaining pins
+// reuse known-good GPIO balls from the Dock 40-pin LCD connector
+// (see examples/sin_lcd/src/sin_rgb.cst) as placeholders — move them
+// to whichever header pins you physically wire:
+//   - uart_rx : connect to the ESP32 UART TX (921600 baud)
+//   - rst_n   : push-button or jumper to 3V3 (active-low reset)
+//   - br_ready: jumper to 3V3 (tie high) for standalone bring-up;
+//               becomes an internal wire once Block 4 is integrated
+//
+// br_real[15:0] / br_imag[15:0] are intentionally left unconstrained:
+// they exist so synthesis keeps the datapath and Block 4 can attach
+// later. Gowin P&R auto-places unconstrained IO (warning only).
+// Constrain them explicitly if probing with a logic analyzer.
+// ============================================================
+
+IO_LOC "clk" H11;
+IO_PORT "clk" PULL_MODE=UP;
+
+// --- inputs (placeholders, ADJUST) ---
+IO_LOC "rst_n" E15;
+IO_PORT "rst_n" PULL_MODE=UP;
+IO_LOC "uart_rx" A15;
+IO_PORT "uart_rx" PULL_MODE=UP;
+IO_LOC "br_ready" D14;
+IO_PORT "br_ready" PULL_MODE=UP;
+
+// --- outputs (placeholders, ADJUST) ---
+IO_LOC "br_valid" E10;
+IO_PORT "br_valid" PULL_MODE=UP DRIVE=8;
+IO_LOC "fifo_overflow" R9;
+IO_PORT "fifo_overflow" PULL_MODE=UP DRIVE=8;
+IO_LOC "frame_dropped" D10;
+IO_PORT "frame_dropped" PULL_MODE=UP DRIVE=8;
