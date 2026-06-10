@@ -34,6 +34,9 @@ Plan ejecutado para esta fusión (junio 2026):
 4. **Script de compilación** (`build_block1_2.tcl`): proyecto Gowin EDA
    modelado sobre `examples/sin_lcd/sin_rgb.tcl` (mismo device, mismas
    opciones de bitstream), con constraints en `src/rfft_block1_2.cst`.
+   Tras probar el build se endureció: rutas absolutas con `file normalize`
+   y borrado del proyecto previo (`final/block1_2_fusion/`) antes de
+   recrearlo, para evitar caching de rutas.
 5. **Verificación:** nuevo testbench E2E (`tb/tb_block1_2_fusion.v`): frame
    UART de 2048 muestras rampa → 1024 salidas complejas verificadas en orden
    bit-reversed exacto. La simulación expuso **tres bugs reales de
@@ -48,7 +51,7 @@ con Icarus Verilog; el `.tcl` queda listo para `gw_sh`.
 | Ruta | Contenido |
 |---|---|
 | `build_block1_2.tcl` | Script Gowin EDA: proyecto, fuentes, device, bitstream |
-| `src/rfft_block1_2_top.v` | Top de fusión + adaptador de protocolo B1→B2 |
+| `src/rfft_block1_2_top.v` | Top de fusión (cableado directo B1→B2) |
 | `src/rfft_block1_2.cst` | Constraints de pines (¡placeholders, ajustar al cableado!) |
 | `src/block1/` | RTL copiado de `examples/Block1_MAX9814/src/` |
 | `src/block2/` | RTL copiado de `examples/block2_memory_bitreverse/rtl/` (con fixes, ver abajo) |
@@ -60,12 +63,16 @@ con Icarus Verilog; el `.tcl` queda listo para `gw_sh`.
 gw_sh final/build_block1_2.tcl
 ```
 
-Genera `final/impl/pnr/block1_2_fusion.fs` (formato bin, comprimido, CRC).
+Crea el proyecto en `final/block1_2_fusion/` (se regenera en cada corrida) y
+deja el bitstream en `final/block1_2_fusion/impl/pnr/block1_2_fusion.fs`
+(formato bin, comprimido, CRC). Las salidas de build (`**/impl/`) y los
+settings locales del IDE (`*.gprj.user`, `.user`) están git-ignorados: no
+commitearlos.
 
 ## Flashear
 
 ```bash
-openFPGALoader -b tangprimer20k final/impl/pnr/block1_2_fusion.fs
+openFPGALoader -b tangprimer20k final/block1_2_fusion/impl/pnr/block1_2_fusion.fs
 ```
 
 ## Simular
