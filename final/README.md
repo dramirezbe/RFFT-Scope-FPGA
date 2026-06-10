@@ -20,8 +20,11 @@ Plan ejecutado para esta fusión (junio 2026):
 
 1. **Exploración:** lectura de todo el repo (`context/HW-CONTEXT.md`,
    `context/INTEGRATION-RULES.md`, READMEs y RTL de todos los bloques en
-   `examples/`). Nota: `examples/twiddle_butterfly` (Bloque 3) está vacío; el
-   butterfly y la ROM de twiddles viven en `examples/block4_coreFFT/verilog/`.
+   `examples/`). Nota: `examples/twiddle_butterfly` (Bloque 3) es un
+   **submódulo git** (`Rocha212/rfft_fpga`); tras clonar hay que correr
+   `git submodule update --init` para poblarlo (RTL del butterfly y ROM de
+   twiddles en `bloque3/rtl/`, tablas y golden model en Python). El Bloque 4
+   integra copias de esos módulos en `examples/block4_coreFFT/verilog/`.
 2. **Workspace `final/`:** copia del RTL del Bloque 1
    (`examples/Block1_MAX9814/src/`) y del Bloque 2
    (`examples/block2_memory_bitreverse/rtl/`) más sus testbenches.
