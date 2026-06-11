@@ -20,6 +20,14 @@ create_project -name rfft_scope           \
                -device_version C          \
                -force
 
+# Copy .hex init files into the project tree so $readmemh
+# resolves relative to the .gprj directory.
+file mkdir $script_dir/rfft_scope/src/block3
+file copy -force $script_dir/src/block3/twiddles_fft.hex    \
+                 $script_dir/rfft_scope/src/block3/
+file copy -force $script_dir/src/block3/twiddles_recomb.hex \
+                 $script_dir/rfft_scope/src/block3/
+
 # ──────────────────────────────────────────
 # Source files
 # ──────────────────────────────────────────

@@ -1,0 +1,58 @@
+{
+  "V0": {
+    "signal": "sine 5 kHz",
+    "peak": "col 107",
+    "amp": 0.5,
+    "hex_offset": 0,
+    "samples": 2048
+  },
+  "V1": {
+    "signal": "sine 3 kHz",
+    "peak": "col 64",
+    "amp": 0.5,
+    "hex_offset": 2048,
+    "samples": 2048
+  },
+  "V2": {
+    "signal": "sine 10 kHz",
+    "peak": "col 213",
+    "amp": 0.5,
+    "hex_offset": 4096,
+    "samples": 2048
+  },
+  "V3": {
+    "signal": "rect 5 kHz",
+    "peaks": "fundamental 5 kHz + odd harmonics",
+    "amp": 0.5,
+    "hex_offset": 6144,
+    "samples": 2048
+  },
+  "V4": {
+    "signal": "delta n=0",
+    "peaks": "flat spectrum (all bins)",
+    "amp": 0.5,
+    "hex_offset": 8192,
+    "samples": 2048
+  },
+  "V5": {
+    "signal": "DC constant",
+    "peak": "bin 0 only",
+    "amp": 0.5,
+    "hex_offset": 10240,
+    "samples": 2048
+  },
+  "V6": {
+    "signal": "chirp 1\u201312 kHz",
+    "peaks": "broadband spread",
+    "amp": 0.5,
+    "hex_offset": 12288,
+    "samples": 2048
+  },
+  "V7": {
+    "signal": "two-tone 3+8 kHz",
+    "peaks": "two peaks (col 64, 170)",
+    "amp": 0.25,
+    "hex_offset": 14336,
+    "samples": 2048
+  }
+}

@@ -1,3 +1,9 @@
+// ============================================================
+// debug_rfft_scope.cst — HIL debug pipeline (no UART)
+// Tang Primer 20K Dock, GW2A-LV18PG256C8/I7
+// ============================================================
+
+// --- LCD RGB 800x480 (conector dedicado del Dock) ---
 IO_LOC "lcd_bl" E10;
 IO_PORT "lcd_bl" PULL_MODE=UP DRIVE=8;
 IO_LOC "lcd_clk" R9;
@@ -40,29 +46,26 @@ IO_LOC "lcd_r[1]" N8;
 IO_PORT "lcd_r[1]" PULL_MODE=UP DRIVE=8;
 IO_LOC "lcd_r[0]" L9;
 IO_PORT "lcd_r[0]" PULL_MODE=UP DRIVE=8;
+
+// --- Sistema ---
 IO_LOC "clk" H11;
 IO_PORT "clk" PULL_MODE=UP;
 
-// ── RFFT scope: entradas/status ──────────────────────────
-// Pines onboard verificados contra el repo oficial de Sipeed
-// (TangPrimer-20K-example: UART_HELLO y Litex BSP).
-//
-// uart_rx  = T13  -> UART RX del FPGA (recibe del ESP32 TX).
-//                    OJO: el pin oficial de RX es T13; M11 es el TX.
-//                    El placeholder anterior (M11) estaba en la linea
-//                    equivocada, por eso "no recibia datos".
-// rst_n    = T10  -> btn_n0 (boton de usuario onboard, activo-bajo).
-// fifo_overflow = L16 -> led0 ; frame_dropped = L14 -> led1.
-//
-// T13/M11 estan compartidos con el puente USB-UART del BL616.
-// Para inyectar desde un ESP32 externo, NO abrir simultaneamente el
-// puerto USB-serial del PC (evita contencion en la linea). Detalles
-// y diagrama en final/PINOUT_GUIDE.md.
 IO_LOC "rst_n" T10;
 IO_PORT "rst_n" PULL_MODE=UP IO_TYPE=LVCMOS18;
-IO_LOC "uart_rx" T13;
-IO_PORT "uart_rx" PULL_MODE=UP IO_TYPE=LVCMOS33;
+
+// --- Status LEDs ---
 IO_LOC "fifo_overflow" L16;
 IO_PORT "fifo_overflow" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS18;
 IO_LOC "frame_dropped" L14;
 IO_PORT "frame_dropped" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS18;
+
+// --- current_vector[2:0] (debug monitor, optional logic analyzer) ---
+// Assigned to spare GPIOs for external monitoring.
+// Remove these lines if they conflict with your Dock pinout.
+IO_LOC "current_vector[2]" N14;
+IO_PORT "current_vector[2]" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS18;
+IO_LOC "current_vector[1]" M11;
+IO_PORT "current_vector[1]" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS18;
+IO_LOC "current_vector[0]" R3;
+IO_PORT "current_vector[0]" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS18;

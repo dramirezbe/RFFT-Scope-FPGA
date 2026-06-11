@@ -1,190 +1,189 @@
-# RFFT Context and Verilog Module Guide
+# RFFT Context and Verilog Module Guide (actualizado con implementacion final/)
 
-This document defines the implementation path for a 16-bit, 2048-point real FFT intended for FPGA work. The goal is to move from research code to a verified, synthesizable RTL design using a testbench-first workflow.
+This document defines the implementation path for a 16-bit, 2048-point real FFT deployed on the Tang Primer 20K FPGA. The project has moved from research code to verified, synthesizable RTL with all 11 testbenches passing.
 
-## Target Design
+## Target Design (implemented)
 
-- Input: 2048 real samples, 16-bit signed fixed-point.
-- Output: 1025 unique frequency bins for a real FFT.
-- Architecture: packed $N/2$ complex FFT flow, where $N = 2048$ and the internal complex FFT size is 1024.
-- Fixed-point style: Q15-like arithmetic for coefficients and sample processing.
+- Input: 2048 real samples, 16-bit signed fixed-point, arriving via UART at 921600 bps from an ESP32+MAX9814 front-end.
+- Output: 512 frequency bins (even-indexed, 0..24 kHz) rendered as spectrum bars on an 800×480 RGB LCD.
+- Architecture: packed N/2 complex FFT flow, where N=2048 and the internal complex FFT size is 1024.
+- Fixed-point style: Q15 arithmetic with saturation for all samples and coefficients.
+- Scaling: 1/1024 global (>>1 per stage, 10 stages).
 
 ## Design Principle
 
 For a real input sequence, the FFT output is Hermitian symmetric:
 
-$$
-X[k] = X^*[N-k]
-$$
+```
+X[k] = X*[N-k]
+```
 
-That means only $N/2 + 1$ bins are unique. The FPGA implementation should therefore avoid a full 2048-point complex FFT and instead use:
+Only N/2 + 1 bins are unique. The FPGA implementation uses:
 
 1. packing of real samples into complex pairs,
 2. a 1024-point complex FFT core,
-3. a recombination stage to recover the real-spectrum bins.
+3. a recombination stage to recover the real-spectrum bins,
+4. decimation to even bins (512 values) for LCD display (46.88 Hz/px covering 0–24 kHz).
 
-This is the right direction for reducing DSP, BRAM, and latency while keeping the design synthesizable.
+## Implemented Module Hierarchy
 
-## Recommended Verilog Module Split
+| Module | Location | Purpose |
+|---|---|---|
+| `rfft_scope_top` | `src/rfft_scope_top.v` | Top-level integration. Connects all submodules, instantiates PLL, handles CDC boundary. Parametrizable `CLK_FREQ` and `BAUD`. |
+| `uart_rx` | `src/block1/uart_rx.v` | UART receiver (921600 bps, 8N1, MSB first). Decodes frame header `0xAA 0x55` + length + 2048 Q15 samples. |
+| `sample_fifo` | `src/block1/sample_fifo.v` | 64-deep FIFO decoupling UART from buffer. Detects overflow. |
+| `sample_buffer` | `src/block1/sample_buffer.v` | Ping-pong buffer capturing 2048 real Q15 samples. Generates `frame_done`/`frame_start`. |
+| `pack_real_to_complex` | `src/block1/pack_real_to_complex.v` | Converts 2048 real samples into 1024 complex pairs: even-indexed -> real, odd-indexed -> imag. |
+| `block1_i2s_top` | `src/block1/block1_i2s_top.v` | B1 top wrapper: `uart_rx` + `block1_top` (FIFO + buffer + pack). |
+| `bit_reverse` | `src/block2/bit_reverse.v` | Computes bit-reversed addresses for indices 0..1023 (10 bits). |
+| `dual_port_ram_buffer` | `src/block2/dual_port_ram_buffer.v` | Stores 1024 complex words, natural-order write / bit-reversed read. |
+| `permutation_controller` | `src/block2/permutation_controller.v` | FSM managing write/read sequencing. Supports `br_ready` backpressure. |
+| `block2_memory_bitreverse_top` | `src/block2/block2_memory_bitreverse_top.v` | B2 top wrapper. |
+| `twiddle_rom` | `src/block3/twiddle_rom.v` | Dual synchronous ROM: 512×32 (FFT Wk_1024) + 1025×32 (Recomb Wk_2048). Q15 format, 1-cycle latency. |
+| `butterfly_radix2` | `src/block3/butterfly_radix2.v` | Radix-2 DIT complex butterfly: 4 DSP multipliers, saturating Q15, 1-cycle latency. Does NOT apply per-stage shift. |
+| `complex_fft_core` | `src/block4/complex_fft_core.v` | Main FFT FSM: 10 DIT stages. Instantiates `twiddle_rom`, `butterfly_radix2`, `fft_stage_controller`, and `working_memory`. 6 fixes applied (FIX-1 to FIX-6). |
+| `fft_stage_controller` | `src/block4/fft_stage_controller.v` | Generates read addresses, strides, twiddle indices. Controls butterfly pacing with dual write cycle (Z1+Z2, FIX-4). |
+| `working_memory` | `src/block4/working_memory.v` | True Dual-Port RAM: 2 banks × 1024 × 32 bits for ping-pong buffering between FFT stages. |
+| `rfft_recombine` | `src/block5/rfft_recombine.v` | Recombination: Z[k] -> Xe/Oo + butterfly = X[k]. Outputs 512 even bins. Reuses `butterfly_radix2`. |
+| `spectrum_buffer` | `src/block5/spectrum_buffer.v` | Dual-clock ping-pong RAM for CDC. Gates first frame to black. |
+| `spectrum_draw` | `src/block5/spectrum_draw.v` | Renders spectrum bars + static axes (frequency in kHz, magnitude). Magnitude = `max+min/2`. |
+| `block5_lcd_drawer` | `src/block5/block5_lcd_drawer.v` | B5 top wrapper: `spectrum_buffer` + `spectrum_draw`, CDC boundary. |
+| `lcd_ctrl` | `src/lcd/lcd_ctrl.v` | LCD controller (from Sipeed `sin_lcd` example). Generates sync signals, pixel coordinates. |
+| `pll_40m` | `src/lcd/gowin_rpll/pll_40m.v` | Gowin PLL: 27 MHz -> 40.5 MHz (27 × 3 / 2). |
 
-The design should be separated into small modules that can each be tested independently.
+## What Each Module Does
 
-| Module | Purpose | What it does |
-| :--- | :--- | :--- |
-| `rfft_top` | Top-level integration | Connects all submodules, handles start/ready/done control, and exposes the final RFFT interface. |
-| `sample_buffer` | Input capture | Stores the 2048 real samples from the ADC or testbench input. This module should make the sample timing explicit. |
-| `pack_real_to_complex` | Packing stage | Converts 2048 real samples into 1024 complex samples by placing even samples in the real lane and odd samples in the imaginary lane. |
-| `bit_reverse` | Address ordering | Reorders samples into bit-reversed order if the FFT architecture needs it. This can be inside the buffer or the controller. |
-| `twiddle_rom` | Coefficient storage | Provides sine/cosine constants in Q15 format for the FFT stages and the final recombination stage. |
-| `butterfly_radix2` | Core arithmetic unit | Performs one radix-2 FFT butterfly on complex fixed-point values with scaling or saturation rules. |
-| `fft_stage_controller` | Stage sequencing | Iterates through the 10 FFT stages needed for a 1024-point complex FFT and controls which butterflies operate. |
-| `complex_fft_core` | 1024-point FFT | Implements the internal FFT core over packed complex data. This can be iterative, pipelined, or RAM-based. |
-| `rfft_recombine` | Real FFT unpacking | Combines the complex FFT results into the final 1025 unique bins using the RFFT recombination equations. |
-| `magnitude_calc` | Optional display/output | Converts complex bins into magnitude values for spectrum display or microphone analysis. |
+### `uart_rx` (replaces original `sample_buffer` ESP32 GPIO protocol)
 
-## What Each Module Should Do
+Receives UART frames at 921600 bps:
+- Header: `0xAA 0x55`
+- Length: 2 bytes (big-endian, value = 2048)
+- Payload: 2048 Q15 samples, MSB first
+- Output: `sample_valid` + `sample_out[15:0]`
 
-### 1. `sample_buffer`
+The original plan used GPIO toggle (`q15_data` + `q15_clk`). UART was chosen because it uses a single wire, works with standard ESP32 UART peripherals, and avoids timing closure issues with parallel buses.
 
-This module stores the incoming 16-bit real samples. For a 2048-point design, it should accept exactly 2048 valid samples per frame.
+### `sample_buffer` (ping-pong)
 
-Use it to:
+Captures 2048 samples from the FIFO into alternating banks. Generates `frame_done` when a bank is full. Handles `frame_dropped` if the consumer hasn't finished with the previous bank.
 
-- isolate the sample capture timing,
-- make testbenches easy to write,
-- allow future streaming or DMA input later.
+### `pack_real_to_complex`
 
-### 2. `pack_real_to_complex`
+Classic real-FFT packing: sample 0 -> complex real 0, sample 1 -> complex imag 0, etc. 2048 real -> 1024 complex.
 
-This is the classic real-FFT packing step.
+### `bit_reverse` + `dual_port_ram_buffer` + `permutation_controller`
 
-- Input sample 0 becomes complex real part 0.
-- Input sample 1 becomes complex imaginary part 0.
-- Input sample 2 becomes complex real part 1.
-- Input sample 3 becomes complex imaginary part 1.
+Writes 1024 complex samples in natural order (address 0..1023), reads them back in bit-reversed order for the DIT FFT. The `permutation_controller` FSM manages the write/read phases and supports `br_ready` backpressure from Block 4.
 
-For 2048 real samples, the packed stream becomes 1024 complex samples.
+### `twiddle_rom`
 
-### 3. `bit_reverse`
+Two independent synchronous read ports:
+- **FFT port:** 512 entries × 32 bits. Addr [8:0], data = `{real[15:0], imag[15:0]}`. Used by Block 4 for butterfly twiddles during FFT stages.
+- **Recomb port:** 1025 entries × 32 bits. Addr [10:0]. Used by Block 5 for the recombination butterfly. Passes through Block 4.
 
-This module performs the address permutation required by an iterative FFT architecture.
+1-cycle read latency. Initialized via `$readmemh` in simulation; Gowin EDA maps to BSRAM with `.hex`/`.mi` init.
 
-If the FFT core already uses a streaming or digit-reversed structure, this module can be reduced or removed. If the core is memory-based, bit reversal is usually needed before the stage loop begins.
+### `butterfly_radix2`
 
-### 4. `twiddle_rom`
+Arithmetic core: 4 Q15 multiplications -> complex product -> sum/difference with saturation. 1-cycle latency (`en` at T -> `done` at T+1). Does NOT apply per-stage 1-bit shift (Block 4 responsibility). Reused by both B4 (FFT core) and B5 (recombination).
 
-This module contains the sine and cosine coefficients in fixed-point form.
+### `fft_stage_controller`
 
-Its role is to:
+Sequences 1024-point FFT across 10 stages:
+- Generates even/odd address pairs based on stage, group, and butterfly index.
+- Prefetches twiddle addresses 1 cycle ahead.
+- Issues butterflies with dual write cycle (Z1 then Z2, FIX-4).
+- Signals `stage_done` when all butterflies in a stage complete.
 
-- avoid computing trigonometric functions in hardware,
-- provide deterministic values for simulation and synthesis,
-- support stage-by-stage butterfly multiplication.
+### `complex_fft_core`
 
-For the recombination stage, it also provides the $W_N^k$ terms needed to combine the packed FFT results.
+Main FFT engine. FSM states: S_IDLE -> S_LOAD_DATA -> S_INIT_STAGE -> S_PROC_STAGE -> S_CHECK_STAGE -> S_OUTPUT_STREAM. Instantiates B3 modules internally. 6 critical fixes applied:
+- FIX-1: `br_ready` deadlock
+- FIX-2: off-by-one in load counter
+- FIX-3: `wm_rd_data` undriven
+- FIX-4: Z2 never written
+- FIX-5: last sample not written (mux by signal, not state)
+- FIX-6: output shifted by 1 bin (prefetch compensation)
 
-### 5. `butterfly_radix2`
+Provides pass-through `tw_addr_recomb`/`tw_data_recomb` ports so B5 can access the recomb twiddle ROM without dual-instantiating it.
 
-This is the arithmetic core of the design.
+### `rfft_recombine`
 
-It should:
+Key RFFT-specific module. Receives 1024 complex FFT bins Z[k], computes real spectrum X[k]:
 
-- accept two complex inputs,
-- multiply by the twiddle factor,
-- compute the sum and difference outputs,
-- apply scaling to prevent overflow,
-- optionally saturate instead of wrapping.
+```
+Xe[k] = (Z[k] + Z*[N-k]) / 2
+Xo[k] = -j * (Z[k] - Z*[N-k]) / 2
+X[k]  = Xe[k] + W_2048^k * Xo[k]
+```
 
-This module is one of the best candidates for early testbenches, because it is small and easy to compare against Python reference values.
+Reuses `butterfly_radix2` from B3 (Xe = E, Xo = O, W = tw). Outputs only even bins (k=0,2..1022 -> 512 values) for LCD display.
 
-### 6. `fft_stage_controller`
+### `spectrum_buffer` (CDC)
 
-This module sequences the 1024-point FFT stages.
+Dual-clock ping-pong RAM bridging `clk_sys` (27 MHz, write from `rfft_recombine`) and `clk_pix` (40.5 MHz, read by `spectrum_draw`). Bank swap on `g_done` with 2FF synchronizer. First-frame gate keeps LCD black until valid data arrives.
 
-For a 1024-point complex FFT, it controls 10 stages. It should manage:
+### `spectrum_draw`
 
-- stage index,
-- butterfly index,
-- read/write RAM addresses,
-- twiddle index selection,
-- start/done handshake.
+Renders on LCD:
+- **Bars:** 512 columns × up to 384 px height. Magnitude = `(max+min)/2` (linear approx, error <12%). Height = `mag >> MAG_SHIFT` (shift=7).
+- **X-axis:** 0–24 kHz, 3 kHz/div, numeric labels.
+- **Y-axis:** Magnitude ticks every 64 px.
+- **Color:** White bars on black background.
 
-### 7. `complex_fft_core`
+### `lcd_ctrl`
 
-This is the main internal FFT engine.
+Standard 800×480 RGB LCD controller (from Sipeed example). Generates `lcd_clk`, `lcd_hsync`, `lcd_vsync`, `lcd_de`, pixel coordinates `lcd_xpos`/`lcd_ypos`. RGB output is 5-6-5 format (R[4:0], G[5:0], B[4:0]).
 
-It processes the packed 1024 complex samples and produces the intermediate frequency bins used by the real FFT recombination step.
+## Differences from Original Plan
 
-In a first version, this can be a simple iterative RAM-based core. Later, it can be optimized to a pipelined or streaming architecture.
+| Planned | Implemented | Reason |
+|---|---|---|
+| ESP32 GPIO `q15_data`+`q15_clk` | UART 921600 bps | Single wire, standard ESP32 peripheral, simpler PCB |
+| `rfft_top` | `rfft_scope_top` | Includes LCD drawer infrastructure |
+| Separate `magnitude_calc` module | `max+min/2` inside `spectrum_draw` | Resource-efficient linear approximation, sufficient for visual display |
+| 1025 bins output | 512 even bins output | Matches 512 LCD columns at 46.88 Hz/px |
+| 50-100 MHz Fclk | 27 MHz board clock | Tang Primer 20K H11 oscillator (unchangeable) |
+| All blocks independent | B3 instantiated inside B4 | Avoids dual ROM instantiation; recomb port passes through |
+| Block 3 ROM: separate instances | Single dual-port `twiddle_rom` inside B4 | Recomb port passed through to B5 |
+| `sample_buffer` as first module | `uart_rx` + `sample_fifo` + `sample_buffer` | UART requires framing/FIFO before sample buffer |
+| Common Python golden only | `scripts/gen_e2e_vectors.py` + numpy golden | Unified E2E test vector generation |
 
-### 8. `rfft_recombine`
+## Testbench-First Verification (all PASS)
 
-This is the key RFFT-specific module.
+| # | Testbench | Result | Time |
+|---|---|---|---|
+| 1 | `tb_uart_rx` | PASS | <1s |
+| 2 | `tb_pack` | PASS | <1s |
+| 3 | `tb_e2e` (B1: UART->pack) | PASS | <1s |
+| 4 | `tb_ram_buffer` | PASS | <1s |
+| 5 | `tb_bit_reverse` | PASS | <1s |
+| 6 | `tb_permutation` (N=8) | PASS | <1s |
+| 7 | `tb_permutation_1024` | PASS | <1s |
+| 8 | `tb_permutation_ready_pause` | PASS | <1s |
+| 9 | `tb_block1_2_fusion` (B1+B2) | PASS | ~1s |
+| 10 | `tb_complex_fft_core` (B4, detects X) | PASS | <1s |
+| 11 | `tb_chain_b2b4recomb` (B2->B4->recomb) | PASS | ~1s |
+| 12 | `tb_rfft_recombine` (512 bins vs golden, ±4 LSB) | PASS | <1s |
+| 13 | `tb_rfft_scope_e2e` (UART->LCD) | PASS | ~2-3 min |
 
-It receives the 1024-point complex FFT output and reconstructs the 1025 unique bins of the 2048-point real FFT.
+## Known Issues and Risks
 
-Responsibilities:
-
-- compute DC and Nyquist bins,
-- process bin pairs $k$ and $N/2-k$,
-- apply conjugate symmetry,
-- multiply by the recombination twiddle,
-- output the final real-spectrum bins.
-
-This module should be compared carefully against the Python reference model.
-
-### 9. `magnitude_calc`
-
-This is optional for the core FFT engine, but useful for audio visualization.
-
-It converts complex output bins into magnitude values:
-
-$$
-|X[k]| = \sqrt{\Re(X[k])^2 + \Im(X[k])^2}
-$$
-
-In hardware, this may later become a CORDIC, a lookup-based approximation, or a squared-magnitude block depending on resource goals.
-
-## Testbench-First Workflow
-
-The project should be developed in this order:
-
-1. Test `butterfly_radix2` alone.
-2. Test `twiddle_rom` and coefficient generation.
-3. Test `pack_real_to_complex` and `bit_reverse`.
-4. Test a small iterative `complex_fft_core` with reference vectors.
-5. Test `rfft_recombine` against the Python model.
-6. Integrate everything into `rfft_top`.
-7. Optimize fixed-point scaling, RAM usage, and timing.
-
-This keeps the project manageable and makes debugging much easier.
+| Issue | Severity | Status |
+|---|---|---|
+| Twiddle ROM init in Gowin synthesis (`$readmemh` path resolution) | High | Documented; `.mi` fallback available |
+| CST for `rfft_block1_2.cst` originally used LCD pins — corrected | High | Fixed |
+| UART pin `uart_rx` was at M11 (TX line) — corrected to T13 | High | Fixed |
+| First frame garbage on LCD | Low | Fixed: `first_done` gate in `spectrum_buffer` |
+| B4 saturation with input >0.5 FS | Low | Accepted; tone uses amp 0.5 |
+| No backpressure UART->FIFO | Low | 506× margin at 27 MHz |
+| PLL stubbed in simulation (CDC not verified) | Medium | Inherent sim limitation |
+| E2E tolerance `white_near` ±2px | Low | Complemented by chain test bit-exact |
 
 ## Optimization Path
 
-After the functional version works, optimize in this order:
-
-1. Reduce LUT and DSP use in butterflies.
-2. Tune scaling to avoid overflow while preserving SNR.
-3. Replace floating-point reference helpers with ROM-based fixed-point tables.
-4. Minimize RAM ports and address conflicts.
-5. Pipeline long arithmetic paths if timing fails.
-
-## Current Scope
-
-For now, keep the project scoped to:
-
-- 16-bit signed input samples,
-- 2048-point real FFT,
-- 1024-point internal complex FFT,
-- one verified Python reference model,
-- one future synthesizable Verilog module set.
-
-## Final Goal
-
-The final FPGA project should have:
-
-- a clean RTL hierarchy,
-- one testbench per module,
-- a validated Python reference model,
-- fixed-point arithmetic matched between simulation and hardware,
-- a top-level `rfft_top` module ready for board integration.
+1. Reduce LUT and DSP use in butterflies (already optimal: 4 DSP per butterfly).
+2. Tune scaling to avoid overflow while preserving SNR (done: amp 0.5, MAG_SHIFT=7).
+3. Replace floating-point reference helpers with ROM-based fixed-point tables (done: `twiddle_rom.v`).
+4. Minimize RAM ports and address conflicts (done: True Dual-Port working memory).
+5. Pipeline long arithmetic paths if timing fails (not needed at 27 MHz).
