@@ -168,3 +168,35 @@ Los archivos `.mi` (formato Gowin) y `.hex` (formato `$readmemh`) se generan por
 1. Asignar pines reales para `uart_rx`, `rst_n` y los LEDs de status
 2. Corregir `rfft_block1_2.cst` (pines de LCD reusados como GPIO)
 3. Verificar que Gowin EDA inicializa correctamente las ROMs de twiddle (`.mi` → BSRAM), o migrar a IP explícita de BSRAM
+
+---
+
+# REVISIÓN Y RESOLUCIÓN (2026-06-10, segunda pasada)
+
+Cada punto revisado contra el RTL. **Hallazgo mayor: el "11/11 PASS" era
+engañoso** — el TB unitario del B4 (y el E2E con tolerancias laxas) ocultaban
+dos bugs reales del Bloque 4. Se encontraron aislando la cadena B2→B4→recomb
+contra un golden numpy bit-exacto (nuevo `tb/tb_chain_b2b4recomb.v`).
+
+| # | ¿Cierto? | Resolución |
+|---|----------|------------|
+| **B4 oculto** | — (no estaba en el informe) | **FIX-5**: `mem[1023]` no se escribía (mux por `state` con `load_wr_en` registrado) → X propagada. **FIX-6**: salida corrida 1 bin (latencia BSRAM sin prefetch) → pico en bin equivocado. El checker del TB ignoraba los X (`X>tol`=falso). **CORREGIDO** + TB ahora detecta X. |
+| **H1** | Sí, y peor | `uart_rx` estaba en **M11 = línea TX** del FPGA (por eso "no recibía"). **CORREGIDO** → `T13` (RX real). `rst_n=T10`, LEDs `L16/L14` confirmados oficiales. Ver `PINOUT_GUIDE.md`. |
+| **H2** | Sí, peligroso | `rfft_block1_2.cst` usaba 6 pines del LCD. **CORREGIDO** → botones/LEDs onboard (T10, T13, T3, L16, L14, N14). Ya no colisiona con el LCD. |
+| **H3** | Parcial | `br_*` sin constrain es intencional (build standalone, solo warning). Documentado en el `.cst`. Sin cambio. |
+| **H4** | Parcial/incorrecto | GowinSynthesis ≥1.9.8 **sí** ejecuta `$readmemh` en síntesis (manual SUG550). El riesgo real es la ruta. **Documentado** en `twiddle_rom.v` (regla de prioridad + verificación + alternativa IP). |
+| **H5** | Sí, cosmético | **CORREGIDO**: gate `first_done` en `spectrum_buffer.v` → LCD en negro hasta el primer frame completo. |
+| **L1** | Sí, menor | Tolerancia ±1 LSB en B1 es laxa pero la ruta es digital pura; los TB pasan bit-exacto en la práctica. Sin cambio (bajo riesgo). |
+| **L2** | Sí, crítico | **CORREGIDO**: `tb/tb_complex_fft_core.v` (regresión rápida del B4) + `tb/tb_chain_b2b4recomb.v` (cadena vs golden). Ambos detectan X. Justamente esto destapó los bugs del B4. |
+| **L3** | Sí, menor | El E2E sigue usando `white_near` ±2px, pero ahora se complementa con el chain test bit-exacto. Cobertura suficiente. |
+| **Q1** | Correcto | Sin overflow en operación normal (margen 506×). Sin cambio. |
+| **Q2** | Correcto | El mux `load_wr_en` cierra a 27 MHz. Sin cambio. |
+| **Q3/Q4** | Correctos | Rutas combinacionales y registro de coordenadas OK a 27/40.5 MHz. Sin cambio. |
+| **V1** | Sí | `gen_e2e_vectors.py` regenera todos los vectores de forma consistente (amp 0.5, MAG_SHIFT=7). Documentado. |
+| **V2** | Sí, y se materializó | El `twiddles_recomb.hex` de `examples/block4_coreFFT/otros/` era un **placeholder incorrecto** (todo `7FFF0000`). El de `src/block3/` (submódulo) es el correcto y es el que usa el pipeline. Sin acción (ya usamos el bueno). |
+| **V3** | Sí, conocido | El PLL es stub en sim; el CDC se mitiga con RAM doble-reloj + 2FF. Limitación inherente de simular sin el PLL real. |
+
+**Estado tras la revisión:** pipeline **funcional de verdad** (no por falsos
+PASS). El tono de 3 kHz por UART produce una barra única en 3 kHz en el LCD,
+verificado contra golden numpy. Listo para síntesis y placa siguiendo
+`PINOUT_GUIDE.md`.

@@ -51,25 +51,33 @@ X[k]  = Xe[k] + W₂₀₄₈ᵏ · Xo[k]
   columnas del LCD cubren 0–24 kHz y el eje estático del drawer
   (64 px = 3 kHz) queda exactamente calibrado (46.88 Hz/px).
 
-## Bugs reales encontrados y corregidos en el B4 (en `src/block4/`)
+## Bugs reales del B4 corregidos (en `src/block4/`)
 
-La integración E2E destapó que el testbench original del B4 daba un
-**falso PASS**: una escritura perdida dejaba `mem[1023]` en X, la X se
-propagaba a los 1024 bins y las comparaciones con X en Verilog dan
-falso → 0 "errores". Con eso corregido afloraron los demás:
+El testbench original del B4 daba un **falso PASS**: su checker solo
+comparaba `error > tolerancia`, y como en Verilog `X > 2` evalúa falso, los
+valores indefinidos (memoria sin escribir) pasaban como OK. Eso ocultó dos
+bugs reales que solo afloraron al integrar la cadena completa:
 
 1. **[FIX-5] Última muestra no escrita:** el mux de escritura seleccionaba
    por `state == S_LOAD_DATA`, pero `load_wr_en` es registrado y la FSM ya
    había saltado a `S_INIT_STAGE` → la muestra 1023 nunca llegaba a la
-   working memory. El mux ahora selecciona por `load_wr_en`.
+   working memory y `mem[1023]` quedaba en X, propagándose a toda la FFT
+   (LCD en negro/basura). El mux ahora selecciona por `load_wr_en`.
 2. **[FIX-6] Salida corrida un bin:** `S_OUTPUT_STREAM` no compensaba la
-   latencia de 1 ciclo de la BSRAM: `fft[k] = mem[k−1]` y `fft[0]` era
-   basura. Ahora hay un ciclo de prefetch antes del primer `fft_valid`.
-3. **Saturación de etapa 0 (mitigada en el top):** la mariposa satura
-   *antes* del `>>1` por etapa, así que con |muestra| > 0.5 la etapa 0
-   recorta (un tono full-scale pierde ~40 % y genera armónicos). El top
-   escala la entrada del B4 `>>1` (cota 0.5 estable en las 10 etapas, no
-   satura nunca) y el drawer compensa con `MAG_SHIFT=6`.
+   latencia de 1 ciclo de la BSRAM: `fft[k] = mem[k−1]`, el pico caía en el
+   bin equivocado y `fft[0]` era basura. Ahora hay un ciclo de prefetch
+   antes del primer `fft_valid`.
+
+Ambos fixes están **verificados** por el TB unitario del B4
+(`tb/tb_complex_fft_core.v`), que ahora **detecta los X explícitamente** y
+usa un tono de amplitud 0.5 (no satura) comparado contra el golden numpy.
+
+**Saturación (limitación conocida del B4, no un bug de integración):** la
+mariposa satura *antes* del `>>1` por etapa, así que con entrada > ~0.5 FS
+la etapa 0 recorta y el pico pierde altura (sin moverse de frecuencia). Por
+eso el tono de prueba usa amplitud 0.5 y el drawer mantiene `MAG_SHIFT=7`.
+En hardware, un tono muy fuerte recorta la **altura** de la barra pero no su
+posición — aceptable para un espectrómetro visual.
 
 > Los archivos de `examples/block4_coreFFT` quedaron intactos: los fixes
 > viven en `final/src/block4/`. Vale la pena retroportarlos.
@@ -80,7 +88,8 @@ falso → 0 "errores". Con eso corregido afloraron los demás:
   `CLK_FREQ` del top (27 MHz por defecto; los TB usan 50 MHz).
 - `clk_pix` = 27 × 3 ÷ 2 = **40.5 MHz** (PLL `pll_40m`), LCD 800×480.
 - CDC: RAM ping-pong de doble reloj del `spectrum_buffer` (banco publicado
-  en `g_done`) + sincronizador 2FF.
+  en `g_done`) + sincronizador 2FF. El display arranca en **negro** hasta el
+  primer frame completo (gate `first_done`), evitando basura inicial en placa.
 
 ## Verificación (todo PASS con Icarus Verilog)
 
@@ -88,18 +97,26 @@ falso → 0 "errores". Con eso corregido afloraron los demás:
 cd final
 python3 scripts/gen_e2e_vectors.py          # requiere numpy
 
-# Unitario de la recombinación (512 bins vs golden, ±4 LSB)
+# B4 unitario: tono complejo k=64, detecta X, vs golden (±5 LSB)
+iverilog -g2012 -o tb_b4 tb/tb_complex_fft_core.v src/block4/*.v \
+         src/block3/butterfly_radix2.v src/block3/twiddle_rom.v && vvp tb_b4
+
+# Cadena de procesamiento B2->B4->recomb vs golden numpy (~1 s)
+iverilog -g2012 -o tb_chain tb/tb_chain_b2b4recomb.v src/block2/*.v \
+         src/block3/butterfly_radix2.v src/block3/twiddle_rom.v \
+         src/block4/*.v src/block5/rfft_recombine.v && vvp tb_chain
+
+# Recombinación unitaria (512 bins vs golden, ±4 LSB)
 iverilog -g2012 -o tb_rec tb/tb_rfft_recombine.v src/block5/rfft_recombine.v \
-         src/block3/butterfly_radix2.v src/block3/twiddle_rom.v
-vvp tb_rec
+         src/block3/butterfly_radix2.v src/block3/twiddle_rom.v && vvp tb_rec
 
 # E2E completo: UART (tono 3 kHz) -> ... -> pixeles del LCD (~2-3 min)
 iverilog -g2012 -o tb_e2e_scope tb/tb_rfft_scope_e2e.v src/rfft_scope_top.v \
          src/block1/*.v src/block2/*.v src/block3/butterfly_radix2.v \
          src/block3/twiddle_rom.v src/block4/*.v src/block5/*.v src/lcd/lcd_ctrl.v
 vvp tb_e2e_scope
-# PASS: pico en la columna del bin golden (x=128, etiqueta "3"), altura
-# golden ±2 px, sin espurios; vuelca rfft_scope_frame.pgm para inspección
+# PASS: pico en la columna del bin golden (x≈128, etiqueta "3 kHz"), sin
+# espurios; vuelca rfft_scope_frame.pgm para inspección visual
 ```
 
 El E2E verifica la cadena completa contra un golden numpy bit-cercano:
@@ -113,14 +130,16 @@ gw_sh final/build_rfft_scope.tcl
 openFPGALoader -b tangprimer20k final/rfft_scope/impl/pnr/rfft_scope.fs
 ```
 
-Notas:
-- Los `.hex` de twiddles se cargan con `$readmemh` (rutas relativas a
-  `final/`, parámetros `FFT_MEM_FILE`/`RECOMB_MEM_FILE` del top). Si la
-  síntesis de Gowin no resuelve la ruta, copiar los `.hex` junto al
-  proyecto o usar los `.mi` (en `src/block3/`) vía IP de BSRAM.
-- Pines: el LCD y `clk` (H11) son los verificados de `examples/sin_lcd`;
-  `uart_rx`, `rst_n` y los LEDs son **placeholders** — ajustar al cableado
-  real del ESP32 en `src/rfft_scope.cst`.
+**Pinout y cableado completos en [PINOUT_GUIDE.md](PINOUT_GUIDE.md)** (FPGA +
+ESP32-WROOM-32 + MAX9814, todos los pines verificados contra el repo oficial
+de Sipeed). Resumen: `clk=H11` (27 MHz), `uart_rx=T13` (← ESP32 GPIO17),
+`rst_n=T10` (botón), LEDs `L16/L14`, LCD en su conector dedicado.
+
+Notas de síntesis:
+- Los `.hex` de twiddles se cargan con `$readmemh`. GowinSynthesis (≥1.9.8)
+  **sí** soporta `$readmemh` para inicializar BSRAM (ver `twiddle_rom.v`); si
+  no resuelve la ruta, copiar los `.hex` junto al `.gprj` o usar los `.mi`
+  (en `src/block3/`) vía IP de BSRAM.
 - Salidas de build (`**/impl/`, `*.gprj.user`) están git-ignoradas.
 
 ## Eje del display
@@ -128,5 +147,5 @@ Notas:
 - **X:** frecuencia, 0–24 kHz, 3 kHz/división (fs = 48 kHz del ESP32,
   2048 muestras reales → Nyquist 24 kHz), etiquetas en kHz.
 - **Y:** magnitud lineal `max+min/2` (aprox de |X|, error < 12 %),
-  1 px = 64 LSB (`MAG_SHIFT=6`). Un tono full-scale llega a ≈ 256 px de
-  los 384 disponibles (el tono de prueba de 0.8 mide 204 px).
+  1 px = 128 LSB (`MAG_SHIFT=7`). El tono de prueba (amp 0.5) mide ≈127 px
+  de los 384 disponibles.

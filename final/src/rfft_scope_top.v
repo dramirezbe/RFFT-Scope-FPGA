@@ -103,14 +103,9 @@ module rfft_scope_top #(
     );
 
     // ── Bloque 4 (con Bloque 3 interno): FFT compleja ────
-    // Escalado de proteccion: la mariposa del B4 satura ANTES del
-    // >>1 por etapa, asi que la etapa 0 recorta si |muestra| > 0.5.
-    // Entrando con muestras/2 la cota |x| <= 0.5 se conserva en las
-    // 10 etapas y la FFT nunca satura (cuesta 1 bit de SNR; el
-    // drawer lo compensa con MAG_SHIFT=6 en vez de 7).
-    wire [15:0] br_real_s = {br_real[15], br_real[15:1]};   // asr 1
-    wire [15:0] br_imag_s = {br_imag[15], br_imag[15:1]};
-
+    // El B4 ya aplica >>1 por etapa internamente (escala total /1024) y
+    // su testbench unitario pasa con entrada full-scale sin saturar, asi
+    // que B2 se conecta directo (sin escalado extra a la entrada).
     wire [15:0] fft_real, fft_imag;
     wire        fft_valid, fft_done;
     wire [10:0] tw_addr_recomb;
@@ -126,8 +121,8 @@ module rfft_scope_top #(
     ) u_block4 (
         .clk            (clk),
         .rst_n          (rst_n),
-        .br_real        (br_real_s),
-        .br_imag        (br_imag_s),
+        .br_real        (br_real),
+        .br_imag        (br_imag),
         .br_valid       (br_valid),
         .br_ready       (br_ready),
         .fft_real       (fft_real),
@@ -188,7 +183,7 @@ module rfft_scope_top #(
     // ── Bloque 5b: captura + dibujo del espectro ─────────
     block5_lcd_drawer #(
         .BINS      (512),
-        .MAG_SHIFT (6)      // compensa el /2 de proteccion del B4
+        .MAG_SHIFT (7)
     ) u_block5 (
         .clk_sys   (clk),
         .rst_n     (rst_n),

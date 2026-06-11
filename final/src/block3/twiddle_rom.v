@@ -33,10 +33,27 @@
 //   twiddles_fft.hex    : 512 palabras de 32 bits
 //   twiddles_recomb.hex : 1025 palabras de 32 bits
 //
-// Nota de síntesis Gowin:
-//   Se usa la primitiva `pROM` o inferencia de BRAM con atributo `syn_romstyle`.
-//   Para forzar BSRAM se incluye el atributo (* ram_style = "block" *).
-//   El atributo `$readmemh` se usa para simulación; Gowin EDA usa los .mi en síntesis.
+// Nota de síntesis Gowin (IMPORTANTE para H4 de ISSUES_FOUND):
+//   GowinSynthesis (Gowin EDA >= 1.9.8) SI soporta $readmemh/$readmemb en
+//   bloques initial para inicializar BSRAM inferida — ver "readmemh/readmemb
+//   relative path priority rules" en el manual SUG550. El atributo
+//   (* ram_style = "block" *) fuerza el uso de BSRAM.
+//
+//   Resolucion de ruta (la clave para que NO salga la ROM en cero):
+//   GowinSynthesis busca el .hex relativo a (1) el directorio del proyecto
+//   (.gprj) y (2) el directorio del archivo .v. Este proyecto pasa la ruta
+//   "src/block3/twiddles_fft.hex" desde el top, que resuelve desde final/
+//   (donde vive el .gprj). Los .hex estan ademas en este mismo directorio
+//   junto al .v, asi que la regla (2) tambien los encuentra.
+//
+//   Verificacion tras sintesis: abrir el reporte de uso de BSRAM y confirmar
+//   que rom_fft (512x32) y rom_recomb (1025x32) se mapearon a BSRAM con
+//   contenido inicial. Si la herramienta avisa "cannot open file", copiar
+//   los .hex junto al .gprj o usar ruta absoluta en FFT_MEM_FILE/RECOMB_MEM_FILE.
+//
+//   Alternativa 100% deterministica (si tu version de Gowin ignora el init):
+//   generar las BSRAM con el IP Catalog (pROM) usando los .mi de este
+//   directorio como archivo de inicializacion, y reemplazar este modulo.
 // =============================================================================
 
 `timescale 1ns / 1ps

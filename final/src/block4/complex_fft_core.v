@@ -74,7 +74,7 @@ module complex_fft_core #(
     reg [ADDR_WIDTH-1:0]   load_cnt;
     reg [ADDR_WIDTH-1:0]   out_cnt;
     reg [ADDR_WIDTH-1:0]   out_rd_addr;
-    reg                    out_started;   // [FIX-6] prefetch hecho
+    reg                    out_started;   // [FIX-6] prefetch de salida hecho
     reg                    active_bank;
 
     // =========================================================================
@@ -111,12 +111,13 @@ module complex_fft_core #(
     // las del stage_controller. El stage_controller ya tiene ST_T2_Z2 interno
     // que alterna entre z1 y z2 usando un solo puerto de escritura [FIX-4].
     //
-    // [FIX-5 integracion] El mux selecciona por load_wr_en y no por
-    // (state == S_LOAD_DATA): load_wr_en es registrado, asi que la escritura
-    // de la ULTIMA muestra (addr 1023) ocurre un ciclo despues de que la FSM
-    // ya salto a S_INIT_STAGE. Con el mux por estado esa escritura se perdia
-    // y mem[1023] quedaba sin inicializar, corrompiendo toda la FFT (el TB
-    // original no lo detectaba porque las comparaciones con X dan falso).
+    // [FIX-5] El mux se selecciona por load_wr_en (registrado), NO por
+    // (state == S_LOAD_DATA): la escritura de la ULTIMA muestra (addr 1023)
+    // ocurre el ciclo despues de que la FSM ya salto a S_INIT_STAGE, asi que
+    // con el mux por estado esa escritura se perdia y mem[1023] quedaba en X.
+    // El TB unitario del B4 NO lo detectaba porque su checker ignora los X
+    // ('X > tolerancia' evalua falso en Verilog). En el pipeline real ese X
+    // se propaga por toda la FFT -> salida indefinida -> LCD en negro/basura.
     // active_bank aun no conmuta en ese ciclo, asi que el banco es correcto.
     assign wm_wr_en   = load_wr_en ? 1'b1         : sc_wr_en;
     assign wm_wr_addr = load_wr_en ? load_wr_addr : sc_wr_addr;
@@ -346,18 +347,18 @@ module complex_fft_core #(
                 // ── S_OUTPUT_STREAM ───────────────────────────────────
                 // Lee del banco resultado (rd_bank = ~active_bank) via
                 // wm_rd_data = sc_rd_data_e [FIX-3].
-                // [FIX-6 integracion] La BSRAM tiene 1 ciclo de latencia:
-                // el primer ciclo solo deja la direccion 0 en vuelo
-                // (prefetch) sin asertar fft_valid. Antes la salida
-                // quedaba corrida un bin: fft[k] = mem[k-1] y fft[0]
-                // contenia basura del ultimo read de la etapa 9.
+                // [FIX-6] La BSRAM tiene 1 ciclo de latencia: el primer ciclo
+                // solo deja la direccion 0 en vuelo (prefetch) SIN asertar
+                // fft_valid. Sin esto la salida queda corrida un bin
+                // (fft[k]=mem[k-1], el pico cae en el bin equivocado) y fft[0]
+                // contiene basura del ultimo read de la etapa 9.
                 S_OUTPUT_STREAM: begin
                     if (!out_started) begin
-                        out_started <= 1'b1;             // prefetch addr 0
+                        out_started <= 1'b1;              // prefetch addr 0
                         out_rd_addr <= out_rd_addr + 1'b1;
                     end else begin
                         fft_valid <= 1'b1;
-                        fft_real  <= wm_rd_data[31:16];  // [FIX-3] tiene driver
+                        fft_real  <= wm_rd_data[31:16];   // [FIX-3] tiene driver
                         fft_imag  <= wm_rd_data[15:0];
                         if (out_cnt == N_COMPLEX - 1) begin
                             fft_done    <= 1'b1;

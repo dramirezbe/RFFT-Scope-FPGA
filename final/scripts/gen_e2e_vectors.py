@@ -25,7 +25,9 @@ FS     = 48000          # Hz (ESP32 / MAX9814)
 N_REAL = 2048
 N_CPLX = 1024
 F_TONE = 3000.0         # Hz -> bin RFFT = F_TONE/FS*N_REAL = 128
-AMP    = 0.8            # amplitud del tono (evita saturacion)
+AMP    = 0.5            # amplitud del tono de prueba. <=0.5 mantiene la
+                        # FFT del B4 sin saturar (con tonos mas fuertes el
+                        # B4 recorta la ALTURA del pico, no su posicion).
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT  = os.path.normpath(os.path.join(HERE, "..", "tb", "vectors"))
@@ -50,12 +52,15 @@ with open(os.path.join(OUT, "e2e_input.hex"), "w") as f:
         f.write(f"{to_u16(v):04x}\n")
 
 # ── 2. pipeline golden ───────────────────────────────────────
-# Bloque 1: empaquetado even/odd -> complejo.
-# El top escala las muestras /2 (asr) antes del Bloque 4 para que
-# la FFT nunca sature (cota |x| <= 0.5 en las 10 etapas).
-z_re = x_q[0::2] >> 1            # asr bit-exact (>> de python = floor)
-z_im = x_q[1::2] >> 1
-z = z_re.astype(np.float64) + 1j * z_im.astype(np.float64)
+# Bloque 1: empaquetado even/odd -> complejo (sin escalado extra:
+# el B4 aplica su propio >>1 por etapa internamente).
+z = x_q[0::2].astype(np.float64) + 1j * x_q[1::2].astype(np.float64)
+
+# señal empaquetada en orden natural (para alimentar B2 directo en el
+# TB de cadena B2->B4->recomb, sin el UART lento)
+with open(os.path.join(OUT, "pack_z.hex"), "w") as f:
+    for r, i in zip(x_q[0::2], x_q[1::2]):
+        f.write(f"{to_u16(r):04x}{to_u16(i):04x}\n")
 
 # Bloques 2+4: FFT compleja escalada /1024 (el orden bit-reverse es
 # interno; el resultado equivale a la FFT en orden natural)
@@ -112,7 +117,7 @@ def mag_approx(r, i):
     return max(a, b) + (min(a, b) >> 1)
 
 
-heights = [mag_approx(r, i) >> 6 for (r, i) in X]   # MAG_SHIFT=6 del top
+heights = [mag_approx(r, i) >> 7 for (r, i) in X]   # MAG_SHIFT=7 del top
 peak_bin = int(np.argmax(heights))
 peak_h   = heights[peak_bin]
 
@@ -123,5 +128,27 @@ with open(os.path.join(OUT, "e2e_params.vh"), "w") as f:
 
 print(f"Tono {F_TONE/1000:.1f} kHz, fs={FS/1000:.0f} kHz, amp={AMP}")
 print(f"Bin RFFT esperado: {F_TONE/FS*N_REAL:.0f} -> pico golden en bin {peak_bin}")
-print(f"Altura de barra esperada: {peak_h} px (mag>>6)")
+print(f"Altura de barra esperada: {peak_h} px (mag>>7)")
+
+# ── 5. vectores unitarios del Bloque 4 (tono complejo en k=64) ──
+# Amplitud 0.5: la FFT del B4 NO satura, asi el golden numpy /1024
+# coincide bit-cercano. Entrada en orden bit-reverso (como entrega B2).
+B4_AMP  = 0.5
+B4_KTON = 64
+xr = q15(B4_AMP * np.cos(2 * np.pi * B4_KTON * np.arange(N_CPLX) / N_CPLX))
+zc = xr.astype(np.float64)                       # imag = 0 (tono real)
+Xb = np.fft.fft(zc) / N_CPLX
+br_idx = [int(f"{i:010b}"[::-1], 2) for i in range(N_CPLX)]
+
+with open(os.path.join(OUT, "b4_input_br.hex"), "w") as f:
+    for i in br_idx:
+        f.write(f"{to_u16(int(xr[i])):04x}0000\n")   # {real, imag=0}
+
+with open(os.path.join(OUT, "b4_expected.hex"), "w") as f:
+    for k in range(N_CPLX):
+        r = int(np.clip(np.round(Xb[k].real), -32768, 32767))
+        im = int(np.clip(np.round(Xb[k].imag), -32768, 32767))
+        f.write(f"{to_u16(r):04x}{to_u16(im):04x}\n")
+
+print(f"Vectores B4: tono complejo k={B4_KTON} amp={B4_AMP} (no satura)")
 print(f"Vectores escritos en {OUT}/")

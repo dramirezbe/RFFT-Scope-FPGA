@@ -225,3 +225,9 @@ __marimo__/
 # Gowin IDE user/local settings
 *.gprj.user
 **/.user
+
+# Simulacion (Icarus / waveforms)
+*.vcd
+*.fst
+final/rfft_scope_frame.pgm
+*.pgm

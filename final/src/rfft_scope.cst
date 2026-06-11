@@ -44,13 +44,25 @@ IO_LOC "clk" H11;
 IO_PORT "clk" PULL_MODE=UP;
 
 // ── RFFT scope: entradas/status ──────────────────────────
-// !! ADJUST TO YOUR WIRING !! (placeholders en GPIO conocidos
-// del Dock; mover al header donde se cablee el ESP32)
+// Pines onboard verificados contra el repo oficial de Sipeed
+// (TangPrimer-20K-example: UART_HELLO y Litex BSP).
+//
+// uart_rx  = T13  -> UART RX del FPGA (recibe del ESP32 TX).
+//                    OJO: el pin oficial de RX es T13; M11 es el TX.
+//                    El placeholder anterior (M11) estaba en la linea
+//                    equivocada, por eso "no recibia datos".
+// rst_n    = T10  -> btn_n0 (boton de usuario onboard, activo-bajo).
+// fifo_overflow = L16 -> led0 ; frame_dropped = L14 -> led1.
+//
+// T13/M11 estan compartidos con el puente USB-UART del BL616.
+// Para inyectar desde un ESP32 externo, NO abrir simultaneamente el
+// puerto USB-serial del PC (evita contencion en la linea). Detalles
+// y diagrama en final/PINOUT_GUIDE.md.
 IO_LOC "rst_n" T10;
-IO_PORT "rst_n" PULL_MODE=UP;
-IO_LOC "uart_rx" M11;
-IO_PORT "uart_rx" PULL_MODE=UP;
+IO_PORT "rst_n" PULL_MODE=UP IO_TYPE=LVCMOS33;
+IO_LOC "uart_rx" T13;
+IO_PORT "uart_rx" PULL_MODE=UP IO_TYPE=LVCMOS33;
 IO_LOC "fifo_overflow" L16;
-IO_PORT "fifo_overflow" PULL_MODE=UP DRIVE=8;
+IO_PORT "fifo_overflow" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS33;
 IO_LOC "frame_dropped" L14;
-IO_PORT "frame_dropped" PULL_MODE=UP DRIVE=8;
+IO_PORT "frame_dropped" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS33;

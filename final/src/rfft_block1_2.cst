@@ -2,38 +2,36 @@
 // Pin constraints - Block1+Block2 fusion (Tang Primer 20K Dock)
 // Device: GW2A-LV18PG256C8/I7
 //
-// !! ADJUST TO YOUR WIRING !!
-// Only "clk" (H11, on-board 27/50 MHz oscillator input used by the
-// lcd/sin_lcd examples) is a verified assignment. The remaining pins
-// reuse known-good GPIO balls from the Dock 40-pin LCD connector
-// (see examples/sin_lcd/src/sin_rgb.cst) as placeholders — move them
-// to whichever header pins you physically wire:
-//   - uart_rx : connect to the ESP32 UART TX (921600 baud)
-//   - rst_n   : push-button or jumper to 3V3 (active-low reset)
-//   - br_ready: jumper to 3V3 (tie high) for standalone bring-up;
-//               becomes an internal wire once Block 4 is integrated
+// Hito intermedio (solo B1+B2). Pines onboard verificados contra el
+// repo oficial de Sipeed (UART_HELLO + Litex BSP). NINGUN pin colisiona
+// con el conector RGB LCD del Dock, asi que es seguro flashear este
+// bitstream con el LCD conectado.
 //
-// br_real[15:0] / br_imag[15:0] are intentionally left unconstrained:
-// they exist so synthesis keeps the datapath and Block 4 can attach
-// later. Gowin P&R auto-places unconstrained IO (warning only).
-// Constrain them explicitly if probing with a logic analyzer.
+// FIX: la version anterior usaba E15/A15/D14/E10/R9/D10, que son TODOS
+// pines del LCD (lcd_de/lcd_hsync/lcd_vsync/lcd_bl/lcd_clk/lcd_g5).
+// Eso podia danar el LCD o cortocircuitar senales.
+//
+// br_real[15:0] / br_imag[15:0] quedan SIN constrain a proposito (solo
+// existen para que la sintesis conserve el datapath; sondearlos con
+// analizador logico requiere asignarles pines de un header libre).
+// Gowin P&R los auto-coloca (solo warning).
 // ============================================================
 
 IO_LOC "clk" H11;
-IO_PORT "clk" PULL_MODE=UP;
+IO_PORT "clk" PULL_MODE=UP IO_TYPE=LVCMOS33;
 
-// --- inputs (placeholders, ADJUST) ---
-IO_LOC "rst_n" E15;
-IO_PORT "rst_n" PULL_MODE=UP;
-IO_LOC "uart_rx" A15;
-IO_PORT "uart_rx" PULL_MODE=UP;
-IO_LOC "br_ready" D14;
-IO_PORT "br_ready" PULL_MODE=UP;
+// --- entradas ---
+IO_LOC "rst_n" T10;          // btn_n0 (boton onboard, activo-bajo)
+IO_PORT "rst_n" PULL_MODE=UP IO_TYPE=LVCMOS33;
+IO_LOC "uart_rx" T13;        // UART RX del FPGA (ESP32 TX)
+IO_PORT "uart_rx" PULL_MODE=UP IO_TYPE=LVCMOS33;
+IO_LOC "br_ready" T3;        // btn_n1 (jumper a 3V3 / boton para liberar)
+IO_PORT "br_ready" PULL_MODE=UP IO_TYPE=LVCMOS15;
 
-// --- outputs (placeholders, ADJUST) ---
-IO_LOC "br_valid" E10;
-IO_PORT "br_valid" PULL_MODE=UP DRIVE=8;
-IO_LOC "fifo_overflow" R9;
-IO_PORT "fifo_overflow" PULL_MODE=UP DRIVE=8;
-IO_LOC "frame_dropped" D10;
-IO_PORT "frame_dropped" PULL_MODE=UP DRIVE=8;
+// --- salidas (LEDs onboard) ---
+IO_LOC "br_valid" L16;       // led0
+IO_PORT "br_valid" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS33;
+IO_LOC "fifo_overflow" L14;  // led1
+IO_PORT "fifo_overflow" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS33;
+IO_LOC "frame_dropped" N14;  // led2
+IO_PORT "frame_dropped" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS33;

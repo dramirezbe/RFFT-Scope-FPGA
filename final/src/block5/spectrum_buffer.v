@@ -59,11 +59,18 @@ module spectrum_buffer #(
             mem[i] = 16'd0;
     end
 
+    // [H5] flag "ya hay al menos un frame completo publicado". En hardware
+    // la BSRAM arranca sin inicializar (el initial de arriba solo vale en
+    // simulacion), asi que sin este gate el LCD mostraria basura hasta el
+    // primer fft_done (~21 ms). Se pone a 1 en el primer fft_done y se queda.
+    reg first_done;
+
     always @(posedge clk_sys or negedge rst_n) begin
         if (!rst_n) begin
-            wr_bank <= 1'b0;
-            wr_cnt  <= {ADDR_WIDTH{1'b0}};
-            wr_full <= 1'b0;
+            wr_bank    <= 1'b0;
+            wr_cnt     <= {ADDR_WIDTH{1'b0}};
+            wr_full    <= 1'b0;
+            first_done <= 1'b0;
         end else begin
             // los bins BINS..1023 del frame del Bloque 4 se descartan
             if (fft_valid && !wr_full) begin
@@ -74,30 +81,37 @@ module spectrum_buffer #(
                     wr_cnt <= wr_cnt + 1'b1;
             end
             if (fft_done) begin
-                wr_bank <= ~wr_bank;  // publica el frame al display
-                wr_cnt  <= {ADDR_WIDTH{1'b0}};
-                wr_full <= 1'b0;
+                wr_bank    <= ~wr_bank;  // publica el frame al display
+                wr_cnt     <= {ADDR_WIDTH{1'b0}};
+                wr_full    <= 1'b0;
+                first_done <= 1'b1;      // ya hay un frame valido
             end
         end
     end
 
     // ----- lectura en dominio pixel -----
-    // sincronizador 2FF del banco publicado
+    // sincronizador 2FF del banco publicado y del flag de frame valido
     reg wr_bank_m, wr_bank_s;
+    reg valid_m, valid_s;
     always @(posedge clk_pix or negedge rst_n) begin
         if (!rst_n) begin
             wr_bank_m <= 1'b0;
             wr_bank_s <= 1'b0;
+            valid_m   <= 1'b0;
+            valid_s   <= 1'b0;
         end else begin
             wr_bank_m <= wr_bank;
             wr_bank_s <= wr_bank_m;
+            valid_m   <= first_done;
+            valid_s   <= valid_m;
         end
     end
 
     wire rd_bank = ~wr_bank_s;   // el display lee el banco NO escrito
 
     always @(posedge clk_pix) begin
-        rd_mag <= mem[{rd_bank, rd_bin}];
+        // negro (mag=0) hasta que el primer frame este listo
+        rd_mag <= valid_s ? mem[{rd_bank, rd_bin}] : 16'd0;
     end
 
 endmodule
