@@ -1,7 +1,12 @@
 `timescale 1ns / 1ps
 
 
-module block1_i2s_top (
+module block1_i2s_top #(
+    // Frecuencia real del clk de sistema (la placa Tang Primer 20K
+    // entrega 27 MHz; los TB historicos usan 50 MHz) y baudrate UART.
+    parameter CLK_FREQ = 50000000,
+    parameter BAUD     = 921600
+)(
     input  wire        clk,
     input  wire        rst_n,
 
@@ -23,8 +28,8 @@ module block1_i2s_top (
 
     // UART receiver instance (reconstructs 16-bit MSB-first samples)
     uart_rx #(
-        .CLK_FREQ(50000000),
-        .BAUD(921600)
+        .CLK_FREQ(CLK_FREQ),
+        .BAUD(BAUD)
     ) u_rx (
         .clk          (clk),
         .rst_n        (rst_n),
