@@ -32,49 +32,44 @@ openFPGALoader -b tangprimer20k final_debug/debug_rfft_scope/impl/pnr/debug_rfft
 #    LCD cycles V0 → V1 → ... → V7 → V0 every ~24 seconds
 ```
 
-## Synthesis Status (verified 2026-06-11)
+## ⚠️ CAUSA DEL "no aparece el pico en 5 kHz" — ROM init en síntesis
 
-Gowin EDA synthesis, place & route, and bitstream generation all pass:
+**Diagnóstico (verificado en simulación):** el RTL es **correcto** — el
+pipeline completo (player → B1 → B2 → B4 → recomb) produce un pico limpio en
+**columna 107 (5 kHz)** con DC ≈ 0 para V0. El ruido + DC enorme que se ve en
+el hardware viene **solo de que las twiddle ROMs (y/o la ROM del player) no se
+inicializan en la síntesis de Gowin** → la mariposa opera con W=0/basura → la
+FFT computa basura.
 
-| Resource | Used | Available | % |
-|---|---|---|---|
-| Logic (LUT+ALU) | 1,021 | 20,736 | 5% |
-| Registers (FF) | 689 | 15,552 | 5% |
-| BSRAM | 15 | 46 | 33% |
-| DSP | 0.5 | 24 | 3% |
-| rPLL | 1 | 4 | 25% |
-| Bitstream | 7.2 MB | — | — |
+**Causa raíz:** los arrays de ROM usaban el atributo `(* ram_style="block" *)`,
+que es sintaxis **Xilinx/Vivado** y **GowinSynthesis la IGNORA**. Sin un
+atributo válido, Gowin mapeaba la ROM inicializada a flip-flops ("number of DFF
+exceeds resource limit") o la dejaba sin inicializar (cero/basura) → FFT rota.
 
-### ROM Initialization (IMPORTANT)
+**FIX aplicado:** se cambió al atributo correcto de GowinSynthesis (estilo
+Synplify, SUG550 §5.17) en `twiddle_rom.v` y `debug_test_rom_player.v`:
 
-The `twiddle_rom.v` and `debug_test_rom_player.v` use `$readmemh` for
-initialization. GowinSynthesis >=1.9.8 supports `$readmemh` but **loading
-large hex files can prevent BSRAM inference**, causing the synthesis to
-fail with "number of DFF exceeds resource limit."
+```verilog
+reg [31:0] rom_fft [0:511] /* synthesis syn_romstyle="block_rom" */;
+```
 
-**Workaround used for this verified build:** the hex files are NOT copied
-into the project directory. Gowin synthesizes the ROMs as zero-initialized
-BSRAM (inference succeeds). The DSP count drops from ~4 to 0.5 because
-zero twiddle factors simplify the butterfly to addition — the bitstream
-is valid but the FFT output will be incorrect.
+Esto fuerza el mapeo a BSRAM **y** conserva la inicialización por `$readmemh`
+(GowinSynthesis ≥1.9.8 sí ejecuta `$readmemh` en síntesis). El TCL ya copia los
+`.hex` dentro del árbol del proyecto para que la ruta resuelva (regla de ruta
+SUG550). **No** dejar las ROMs en cero — eso da pantalla negra / FFT nula.
 
-**To get correct FFT output on hardware**, use one of these methods:
+**Verificación tras `gw_sh`:** abrir el reporte de uso y confirmar que
+`rom_fft` (512×32), `rom_recomb` (1025×32) y el `rom` del player (16384×16) se
+mapearon a **BSRAM con contenido inicial** y que el conteo de DSP es ~4 (no
+0.5 — un 0.5 indica twiddles en cero y FFT rota).
 
-1. **IP Catalog (recommended):** replace `twiddle_rom.v` and the `rom`
-   array in `debug_test_rom_player.v` with BSRAM IP instances from the
-   Gowin IP Catalog, loading content from the provided `.mi` files.
-   
-2. **Copy hex files into the project tree AFTER synthesis:** copy
-   `src/block3/twiddles_*.hex` and `src/debug_hex/debug_vectors.hex`
-   to `debug_rfft_scope/src/block3/` and `debug_rfft_scope/src/debug_hex/`
-   respectively, then re-run only P&R (not synthesis):
-   ```bash
-   # After gw_sh completes successfully:
-   cp src/block3/twiddles_fft.hex debug_rfft_scope/src/block3/
-   cp src/block3/twiddles_recomb.hex debug_rfft_scope/src/block3/
-   cp src/debug_hex/debug_vectors.hex debug_rfft_scope/src/debug_hex/
-   # Re-open project in Gowin IDE and run P&R
-   ```
+**Fallback (si tu versión de Gowin aún no inicializa la BSRAM inferida):**
+generar las ROMs con el **IP Catalog (pROM)** cargando los `.mi` provistos
+(`src/block3/twiddles_*.mi`, `src/debug_hex/debug_vectors.mi`) y reemplazar los
+módulos de ROM por las instancias del IP.
+
+> Nota: la tabla de recursos previa (DSP 0.5) correspondía al build con
+> twiddles en cero — por eso la FFT salía mal. Con el fix el DSP sube a ~4.
 
 ## Test Vectors
 
@@ -110,7 +105,7 @@ iverilog -g2012 -o tb/tb_debug_player.vvp \
 
 | File | Purpose |
 |---|---|
-| `src/debug_test_rom_player.v` | **New.** ROM-based autonomous sample injector, auto-cycles 8 vectors |
+| `src/debug_test_rom_player.v` | **New.** ROM-based autonomous sample injector, auto-cycles 8 vectors. Fixes: `syn_romstyle` BSRAM attr + off-by-one (ahora emite rom[0..2047], antes saltaba la muestra 0 y colaba 1 muestra del vector siguiente) |
 | `src/debug_block1_i2s_top.v` | **Modified.** B1 top with ROM player instead of UART |
 | `src/debug_rfft_scope_top.v` | **Modified.** Full pipeline top, no uart_rx port |
 | `src/debug_rfft_scope.cst` | **New.** Pin constraints (no uart_rx, current_vector on spare GPIOs) |

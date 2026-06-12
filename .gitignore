@@ -231,3 +231,5 @@ __marimo__/
 *.fst
 final/rfft_scope_frame.pgm
 *.pgm
+*.vvp
+final_debug/tb/vectors/

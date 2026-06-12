@@ -23,8 +23,13 @@ module twiddle_rom #(
     output reg  [2*DATA_WIDTH-1:0]             tw_data_recomb
 );
 
-    (* ram_style = "block" *) reg [2*DATA_WIDTH-1:0] rom_fft    [0:TWIDDLE_FFT_DEPTH-1];
-    (* ram_style = "block" *) reg [2*DATA_WIDTH-1:0] rom_recomb [0:TWIDDLE_RECOMB_DEPTH-1];
+    // FIX (Gowin): el atributo Xilinx (* ram_style="block" *) lo IGNORA
+    // GowinSynthesis, asi que con datos de init mapeaba la ROM a flip-flops
+    // -> "number of DFF exceeds resource limit" o, peor, ROM en cero/basura
+    // -> FFT incorrecta (ruido + DC en el LCD). El atributo correcto de
+    // GowinSynthesis (estilo Synplify, SUG550 sec. 5.17) es syn_romstyle.
+    reg [2*DATA_WIDTH-1:0] rom_fft    [0:TWIDDLE_FFT_DEPTH-1]    /* synthesis syn_romstyle="block_rom" */;
+    reg [2*DATA_WIDTH-1:0] rom_recomb [0:TWIDDLE_RECOMB_DEPTH-1] /* synthesis syn_romstyle="block_rom" */;
 
     initial begin
         $readmemh(FFT_MEM_FILE,    rom_fft);

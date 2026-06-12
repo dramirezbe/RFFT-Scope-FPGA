@@ -30,7 +30,11 @@ module debug_test_rom_player #(
     output wire [VEC_SEL_WIDTH-1:0]      current_vector
 );
 
-    (* ram_style = "block" *) reg [15:0] rom [0:NUM_VECTORS*N_SAMPLES-1];
+    // FIX (Gowin): syn_romstyle fuerza BSRAM (el atributo Xilinx ram_style
+    // lo ignora GowinSynthesis y esta ROM de 16384x16 = 256 Kbit caia a
+    // flip-flops -> excede recursos, o quedaba sin inicializar -> entrada
+    // basura al pipeline. Ver SUG550 sec. 5.17.
+    reg [15:0] rom [0:NUM_VECTORS*N_SAMPLES-1] /* synthesis syn_romstyle="block_rom" */;
 
     initial begin
         $readmemh("src/debug_hex/debug_vectors.hex", rom);
@@ -96,10 +100,12 @@ module debug_test_rom_player #(
                         state         <= 2'd1;
                     end
 
-                    // prefetch: address 0 already set, ROM reads it this cycle
-                    // set address 1 for next read; no output (rom_data not yet valid)
+                    // prefetch: mantener address 0 para que rom_data quede en
+                    // rom[0] al entrar a emit. (FIX off-by-one: antes ponia
+                    // sample_addr<=1 y el primer emit sacaba rom[1], saltando la
+                    // muestra 0 y colando rom[2048] = muestra 0 del vector siguiente.)
                     2'd1: begin
-                        sample_addr <= 1;
+                        sample_addr <= 0;
                         state       <= 2'd2;
                     end
 
