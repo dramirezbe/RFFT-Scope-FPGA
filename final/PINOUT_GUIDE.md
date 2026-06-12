@@ -19,7 +19,7 @@ Sipeed ([TangPrimer-20K-example](https://github.com/sipeed/TangPrimer-20K-exampl
  ┌─────────┐            ┌────────────────┐             ┌──────────────────────┐
  │  OUT  ──┼────────────┼─ GPIO36 (ADC1_0)│             │                      │
  │  VDD  ──┼── 3V3      │                 │             │                      │
- │  GND  ──┼── GND      │  GPIO17 (U2_TXD)├──UART 921600┤ T13  uart_rx         │
+ │  GND  ──┼── GND      │  GPIO17 (U2_TXD)├──UART 921600┤ T6   uart_rx (MIC ARR)│
  └─────────┘            │            GND ─┼─────────────┤ GND  (común)         │
                         │            3V3 ─┼─ (opcional) │                      │
                         └────────────────┘             │ H11  clk 27MHz (osc) │
@@ -31,7 +31,7 @@ Sipeed ([TangPrimer-20K-example](https://github.com/sipeed/TangPrimer-20K-exampl
 ```
 
 **Conexiones mínimas para que funcione:**
-1. `ESP32 GPIO17` → `FPGA T13` (datos UART de audio).
+1. `ESP32 GPIO17` → `FPGA T6` (header MIC ARRAY; datos UART de audio).
 2. `ESP32 GND` ↔ `FPGA GND` (referencia común, **imprescindible**).
 3. `MAX9814 OUT` → `ESP32 GPIO36`; `MAX9814 VDD/GND` → 3V3/GND del ESP32.
 4. Pantalla RGB en el conector LCD del Dock.
@@ -47,14 +47,17 @@ Sipeed ([TangPrimer-20K-example](https://github.com/sipeed/TangPrimer-20K-exampl
 |---|---|---|---|---|
 | `clk` | **H11** | in | LVCMOS33 | Oscilador 27 MHz del core board (fijo) |
 | `rst_n` | **T10** | in | LVCMOS33 | `btn_n0` (botón usuario, activo-bajo). Pull-up interno |
-| `uart_rx` | **T13** | in | LVCMOS33 | **ESP32 GPIO17 (U2_TXD)** |
+| `uart_rx` | **T6** | in | LVCMOS33 | **ESP32 GPIO17 (U2_TXD)** — pin del header MIC ARRAY |
 | `fifo_overflow` | **L16** | out | LVCMOS33 | `led0` onboard (debug) |
 | `frame_dropped` | **L14** | out | LVCMOS33 | `led1` onboard (debug) |
 
-> **Nota T13:** es el RX del puente USB-UART (BL616) del Dock. Para inyectar
-> desde el ESP32, **no abras el puerto USB-serial del PC** a la vez (evita que
-> el BL616 maneje la línea). El placeholder anterior estaba en **M11**, que es
-> el **TX** del FPGA — por eso no recibía nada.
+> **Por qué T6 y no T13:** T13 es el RX del UART oficial, pero va **internamente
+> al puente USB-UART (BL616)** del Dock — no está en ningún header donde se pueda
+> soldar un cable al ESP32. Por eso `uart_rx` se asigna a **T6**, un GPIO libre
+> del header **MIC ARRAY** (esquina superior izquierda del Dock) que tiene GND y
+> 3V3 al lado. **Verificar** contra el header físico; si Gowin objeta el
+> `IO_TYPE`, usar otro pin del mismo header (P6/R8/P8/T8/P9/T9) o quitar el
+> `IO_TYPE`. Cambiar `uart_rx` requiere re-sintetizar.
 
 ### 2.2 Pantalla RGB LCD 800×480 (conector dedicado del Dock)
 
@@ -98,7 +101,7 @@ idf.py build && idf.py -p /dev/ttyUSB0 flash monitor
 
 - **GND común obligatorio** entre ESP32 y Tang Primer: sin él la UART no
   decodifica (no hay referencia de nivel).
-- **Niveles 3.3V** en ambos lados → conexión directa de GPIO17 a T13. No
+- **Niveles 3.3V** en ambos lados → conexión directa de GPIO17 a T6. No
   conectar nada de 5V a los pines de la FPGA.
 - **Baudrate vs reloj:** el `uart_rx` deriva el divisor de `CLK_FREQ=27_000_000`
   y `BAUD=921600` (parámetros del top). El error de baudrate resultante es
