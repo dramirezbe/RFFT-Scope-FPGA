@@ -120,6 +120,7 @@ localparam ST_LEN_HI   = 3'd3;
 localparam ST_LEN_LO   = 3'd4;
 localparam ST_PAYLOAD  = 3'd5;
 localparam ST_TAIL0    = 3'd6;
+localparam ST_TAIL1    = 3'd7;
 
 reg [15:0] expected_samples; // number of samples to read
 reg [7:0]  len_hi;
@@ -192,7 +193,11 @@ always @(posedge clk or negedge rst_n) begin
                     end
                 end
                 ST_TAIL0: begin
-                    // optional: verify tail bytes (e.g., 0x55 0xAA), but we consume and go to IDLE
+                    // consume first tail byte (0x55); second tail byte next
+                    state <= ST_TAIL1;
+                end
+                ST_TAIL1: begin
+                    // consume second tail byte (0xAA) and close the frame
                     state <= ST_IDLE;
                     frame_done <= 1'b1;
                 end

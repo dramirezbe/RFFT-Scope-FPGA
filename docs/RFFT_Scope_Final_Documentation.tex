@@ -1,0 +1,566 @@
+% =============================================================================
+%  RFFT Scope FPGA — Documentación Final
+%  Real FFT Architecture on FPGA (Sipeed Tang Primer 20K / Gowin GW2A-LV18)
+%
+%  Documento listo para compilar en Overleaf (pdfLaTeX).
+%  Reconstruye el documento de diseño y añade los resultados de verificación
+%  RTL finales obtenidos con la suite verification_plan/.
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ----------------------------- Paquetes --------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,english]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+
+% --------------------------- Estilo de código --------------------------------
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekw}{RGB}{0,0,180}
+\definecolor{codecm}{RGB}{0,128,0}
+\lstdefinestyle{verilog}{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekw}\bfseries,
+  commentstyle=\color{codecm}\itshape,
+  breaklines=true,
+  frame=single,
+  framesep=4pt,
+  language=Verilog,
+  showstringspaces=false,
+  tabsize=2,
+}
+\lstset{style=verilog}
+
+% Nota: bin de máxima frecuencia y atajo de columnas
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% ------------------------------ Portada --------------------------------------
+\title{\textbf{Arquitectura de FFT Real en FPGA}\\[0.4em]
+       \large RFFT Scope — Implementación de 2048 puntos en\\
+       Sipeed Tang Primer 20K (Gowin GW2A-LV18PG256C8/I7)\\[0.6em]
+       \normalsize Documentación Final del Proyecto}
+\author{Proyecto RFFT-Scope-FPGA}
+\date{Junio 2026}
+
+\begin{document}
+\selectlanguage{spanish}
+\maketitle
+\begin{abstract}
+Este documento describe la arquitectura hardware, los requisitos y el plan de
+verificación de una Transformada Rápida de Fourier para señales reales (RFFT)
+de 2048 puntos implementada sobre la FPGA \textit{Sipeed Tang Primer 20K}.
+La arquitectura explota la simetría conjugada de la DFT de señales reales
+empaquetando $N=2048$ muestras reales en $N/2=1024$ muestras complejas y
+ejecutando internamente una FFT compleja de 1024 puntos Radix-2 DIT. Una etapa
+final de recombinación recupera los 1025 \textit{bins} únicos del espectro.
+Se incluyen los resultados de verificación RTL finales, donde todos los
+\textit{testbenches} de la suite del proyecto pasan sin errores.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section{Arquitectura de FFT Real en FPGA}
+% =============================================================================
+
+\subsection{Visión general del proyecto}
+Esta sección describe la arquitectura hardware de una \emph{Real Fast Fourier
+Transform} (RFFT) implementada en una FPGA Sipeed Tang Primer 20K
+(Gowin GW2A-LV18PG256C8/I7). En lugar de ejecutar una FFT compleja completa de
+$N$ puntos sobre datos reales, la arquitectura explota la propiedad de simetría
+conjugada de la DFT de señales reales empaquetando $N=2048$ muestras reales en
+$N/2=1024$ muestras complejas y ejecutando internamente un núcleo de FFT
+compleja de 1024 puntos. Una etapa final de recombinación recupera los 1025
+\emph{bins} de frecuencia únicos que constituyen la salida de la RFFT.
+
+Dado que el espectro de una secuencia real satisface
+\begin{equation}
+  X[k] = X^{*}[N-k],
+\end{equation}
+sólo los primeros $N/2+1 = 1025$ \emph{bins} de salida transportan información
+única. La estrategia de empaquetado más recombinación reduce a la mitad el
+tamaño interno de la FFT en comparación con una implementación compleja
+ingenua, disminuyendo proporcionalmente el uso de DSP, BRAM y la latencia. El
+dispositivo objetivo proporciona 48 bloques multiplicadores DSP ($18\times18$)
+y 828\,Kbits de SRAM de bloque en chip, lo que hace de la aritmética de punto
+fijo y el almacenamiento de \emph{twiddle factors} en memoria la estrategia
+natural de implementación.
+
+\subsection{Señal de entrada y representación Q15}
+El sistema acepta una señal real de tiempo discreto $x[n]$ de longitud
+$N=2048$ muestreada a $f_s = 48$\,kHz. Todos los datos se representan en formato
+de punto fijo Q15: un bit de signo seguido de 15 bits fraccionarios empaquetados
+en una palabra de 16 bits en complemento a dos, lo que da un rango dinámico de
+$[-1, 1)$ con una resolución de $2^{-15} \approx 3.05\times10^{-5}$. Este
+formato es adecuado para señales de audio y \emph{twiddle factors} normalizados,
+ambos acotados en $[-1,1]$, y se mapea directamente sobre las unidades MAC
+(\emph{multiply-accumulate}) DSP disponibles en la FPGA sin necesidad de una
+unidad de punto flotante.
+
+El flujo Q15 es producido por uno de dos \emph{front-ends}:
+\begin{align}
+  \text{Mic digital (I2S)} &\;\longrightarrow\; \text{deserializador I2S} \;\longrightarrow\; \text{flujo Q15 a 48\,kHz}, \\
+  \text{Mic analógico} &\;\longrightarrow\; \text{ADC 16-bit} \;\longrightarrow\; \text{flujo Q15 a 48\,kHz}.
+\end{align}
+
+\subsection{Etapa de empaquetado: conversión real-a-complejo}
+Antes de invocar el núcleo de FFT compleja, las 2048 muestras reales se
+empaquetan en 1024 muestras complejas intercalando las entradas de índice par e
+impar:
+\begin{equation}
+  z[m] = x[2m] + j\,x[2m+1], \qquad m = 0,1,\dots,1023.
+\end{equation}
+Este es el truco estándar que permite que una única FFT compleja de $N/2$ puntos
+procese una secuencia real de $N$ puntos. El flujo complejo empaquetado $z[m]$
+se pasa al núcleo Radix-2 DIT de 1024 puntos descrito en la
+Sección~\ref{sec:fftcore}.
+
+\subsection{Generación y almacenamiento de \emph{twiddle factors}}
+Se requieren dos conjuntos de \emph{twiddle factors}:
+
+\paragraph{a) Twiddles de FFT} para el núcleo de FFT compleja de 1024 puntos:
+\begin{equation}
+  W_{1024}^{k} = \cos\!\left(\frac{2\pi k}{1024}\right) - j\sin\!\left(\frac{2\pi k}{1024}\right), \qquad k = 0,1,\dots,511.
+\end{equation}
+
+\paragraph{b) Twiddles de recombinación} para la etapa RFFT final
+(Sección~\ref{sec:recomb}):
+\begin{equation}
+  W_{2048}^{k} = \cos\!\left(\frac{2\pi k}{2048}\right) - j\sin\!\left(\frac{2\pi k}{2048}\right), \qquad k = 0,1,\dots,1024.
+\end{equation}
+
+Ambas tablas se precalculan \emph{offline} en Python con aritmética de doble
+precisión y se cuantizan a Q15 multiplicando por $2^{15}$ y redondeando al
+entero más cercano, obteniendo enteros con signo de 16 bits en el rango
+$[-32768, 32767]$. Cada entrada de \emph{twiddle} se empaqueta en una única
+palabra de ROM de 32 bits:
+\begin{equation}
+  \underbrace{\mathrm{Re}\{W_k\}}_{\text{bits}[31:16]} \;\;\Vert\;\; \underbrace{\mathrm{Im}\{W_k\}}_{\text{bits}[15:0]}.
+\end{equation}
+Las tablas se escriben en ficheros de inicialización de memoria \texttt{.mi}
+(formato BSRAM de Gowin) y se cargan en una ROM de puerto único sintetizada a
+partir de la BSRAM en chip. El controlador de etapas de la FFT direcciona la
+ROM de \emph{twiddles} con el \emph{stride} dependiente de la etapa; la etapa de
+recombinación usa la tabla $W_{2048}^{k}$ directamente.
+
+\subsection{Núcleo FFT Radix-2 DIT}
+\label{sec:fftcore}
+El motor interno de FFT compleja es un núcleo Radix-2 de Decimación en el
+Tiempo (DIT) de 1024 puntos. La DFT de la secuencia empaquetada $z[m]$,
+\begin{equation}
+  Z[k] = \sum_{m=0}^{1023} z[m]\,W_{1024}^{km},
+\end{equation}
+se descompone recursivamente separando las muestras de índice par e impar:
+\begin{equation}
+  Z[k] = E[k] + W_{1024}^{k}\,O[k],
+\end{equation}
+donde $E[k]$ y $O[k]$ son las DFT de 512 puntos de las subsecuencias par e
+impar de $z[m]$, respectivamente. Esta factorización se aplica
+$\log_2 1024 = 10$ veces, reduciendo el conteo de operaciones de $O(N^2)$ a
+$O(N\log_2 N)$.
+
+Dado que el algoritmo DIT requiere entrada en orden de bit invertido, se aplica
+una permutación de bit-reversal a los datos empaquetados antes de la primera
+etapa de mariposas. El reordenamiento se implementa usando los bloques de RAM
+de doble puerto de la FPGA, permitiendo acceso simultáneo de lectura y
+escritura durante la permutación. Se usan bancos de RAM de doble puerto
+separados para el buffer de bit-reversal y para la memoria de trabajo
+inter-etapa, evitando conflictos de dirección sobre las macros BSRAM.
+
+\subsection{Cómputo de mariposa y escalado}
+Cada unidad de mariposa recibe un término par $E[k]$, un término impar $O[k]$
+y el \emph{twiddle factor} $W_{1024}^{k}$ de la etapa actual, produciendo los
+dos \emph{bins} de salida
+\begin{align}
+  Z_{\text{out}}[k]       &= E[k] + W_{1024}^{k}\,O[k], \\
+  Z_{\text{out}}[k + N/2] &= E[k] - W_{1024}^{k}\,O[k].
+\end{align}
+La multiplicación compleja $W_{1024}^{k}\cdot O[k]$ se expande en cuatro
+multiplicaciones reales y dos sumas, y se mapea sobre los bloques MAC DSP. En
+aritmética Q15, el producto de dos números Q15 de 16 bits produce un resultado
+Q30 de 32 bits; se aplica un desplazamiento a la derecha de 15 bits con
+saturación simétrica a \texttt{0x7FFF}/\texttt{0x8000} para restaurar el formato
+Q15. Adicionalmente, se aplica un desplazamiento aritmético a la derecha de un
+bit (división por dos) a ambas salidas tras cada suma de mariposa para prevenir
+la acumulación de \emph{overflow} a lo largo de las 10 etapas.
+
+\paragraph{Nota sobre el factor de escala.} La combinación del desplazamiento de
+15 bits post-multiplicación y el desplazamiento de 1 bit por etapa introduce un
+factor de escala total de $1/2^{10} = 1/1024$ sobre la salida de la FFT respecto
+a una DFT sin escalar. Todos los modelos de referencia en Python deben aplicar
+una normalización equivalente de $1/1024$ (o comparar usando
+\texttt{numpy.fft.fft()} con el argumento \texttt{norm="forward"} dividido por la
+potencia de dos adecuada) de modo que las comparaciones numéricas permanezcan
+dentro de la tolerancia de $\pm2$\,LSB.
+
+\subsection{Etapa de recombinación RFFT}
+\label{sec:recomb}
+Tras la FFT compleja de 1024 puntos que produce $Z[k]$, un módulo de
+recombinación dedicado recupera los 1025 \emph{bins} únicos de la FFT real de
+2048 puntos. Sea $Z[k]$ la salida del núcleo complejo. Las ecuaciones de
+recombinación son:
+\begin{align}
+  A[k] &= \tfrac{1}{2}\bigl(Z[k] + Z^{*}[1024-k]\bigr), \\
+  B[k] &= \tfrac{1}{2}\bigl(Z[k] - Z^{*}[1024-k]\bigr)\cdot(-j), \\
+  X[k] &= A[k] + W_{2048}^{k}\,B[k], \qquad k = 0,1,\dots,1024,
+\end{align}
+donde $Z^{*}$ denota el conjugado complejo y $Z[0]$ se usa para la condición de
+frontera $Z[1024]\equiv Z[0]$ (periodicidad). El \emph{bin} de DC $X[0]$ y el de
+Nyquist $X[1024]$ son puramente reales y se calculan como casos especiales:
+\begin{align}
+  X[0]    &= \mathrm{Re}(Z[0]) + \mathrm{Im}(Z[0]), \\
+  X[1024] &= \mathrm{Re}(Z[0]) - \mathrm{Im}(Z[0]).
+\end{align}
+Esta etapa de recombinación usa la ROM de \emph{twiddles} $W_{2048}^{k}$ y debe
+validarse de forma independiente contra la referencia de Python
+\texttt{numpy.fft.rfft(x, n=2048)} antes de la integración.
+
+\subsection{Flujo de procesamiento hardware}
+La Figura~\ref{fig:pipeline} ilustra el \emph{pipeline} de procesamiento de
+extremo a extremo.
+
+\begin{figure}[H]
+\centering
+\fbox{\begin{minipage}{0.92\textwidth}
+\centering\small
+\textbf{Mic / ADC} ($f_s=48$\,kHz) $\rightarrow$
+\textbf{Conversión Q15} $\rightarrow$
+\textbf{Sample Buffer} (2048) $\rightarrow$
+\textbf{Pack Real$\to$Complex} (1024) \\[0.4em]
+$\rightarrow$ \textbf{Bit-reversal} $\rightarrow$
+\textbf{Radix-2 DIT 1024-pt} ($\times10$ etapas de mariposa) $\rightarrow$
+\textbf{Recombinación RFFT} (1025 bins) $\rightarrow$
+\textbf{Magnitud / Display}
+\end{minipage}}
+\caption{\emph{Pipeline} de procesamiento en la FPGA para la implementación de
+la FFT Real. El \emph{front-end} de micrófono o ADC alimenta un flujo Q15 a
+48\,kHz; las muestras se empaquetan en pares complejos antes de la FFT interna
+de 1024 puntos; la etapa de recombinación produce los 1025 \emph{bins} únicos
+que se reenvían al display.}
+\label{fig:pipeline}
+\end{figure}
+
+La señal de entrada se convierte primero a un flujo Q15 de 16 bits a 48\,kHz. El
+\emph{sample buffer} recolecta exactamente 2048 muestras por \emph{frame}. La
+etapa de empaquetado mapea 2048 muestras reales a 1024 complejas (par$\to$Re,
+impar$\to$Im). La permutación de bit-reversal reordena los datos empaquetados;
+después, el núcleo Radix-2 DIT de 1024 puntos ejecuta las 10 etapas de mariposa,
+buscando \emph{twiddles} de la ROM de FFT con \emph{strides} de dirección
+dependientes de la etapa. El escalado de 1 bit por etapa previene la acumulación
+de \emph{overflow}. El módulo de recombinación aplica las ecuaciones de
+post-procesado RFFT y la ROM $W_{2048}^{k}$ para recuperar los 1025 \emph{bins},
+que se reenvían al calculador de magnitud y al display.
+
+\paragraph{Recursos hardware utilizados:}
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{RAM de doble puerto (BSRAM):} bancos separados para el buffer de
+        permutación bit-reversal y para la memoria de trabajo inter-etapa.
+  \item \textbf{ROM de puerto único (BSRAM):} tabla de \emph{twiddles} de FFT
+        ($W_{1024}^{k}$, $k=0\dots511$) y tabla de \emph{twiddles} de
+        recombinación ($W_{2048}^{k}$, $k=0\dots1024$), cada una empaquetada en
+        palabras de 32 bits.
+  \item \textbf{Slices DSP:} multiplicaciones complejas en la unidad de mariposa
+        (4 multiplicaciones reales por mariposa) y en la etapa de recombinación.
+  \item \textbf{Aritmética de punto fijo:} Q15 en todo el datapath;
+        desplazamiento de 15 bits post-multiplicación con saturación;
+        desplazamiento de 1 bit por etapa con factor de escala total $1/1024$.
+\end{itemize}
+
+\subsection{Resumen del diseño}
+La arquitectura propuesta logra una implementación FPGA eficiente de la FFT Real
+de 2048 puntos sobre la Tang Primer 20K explotando el empaquetado real-a-complejo
+de modo que sólo se requiere un núcleo de FFT compleja interna de 1024 puntos. La
+precomputación \emph{offline} de \emph{twiddle factors} en Python elimina las
+operaciones trigonométricas en tiempo de ejecución y confina el cómputo en chip
+a operaciones MAC enteras mapeadas directamente sobre los 48 \emph{slices} DSP
+disponibles. Una etapa de recombinación dedicada recupera correctamente los 1025
+\emph{bins} únicos de la RFFT. Toda la aritmética es Q15 de punto fijo con un
+factor de escala determinista de $1/1024$ aplicado de forma consistente tanto en
+el RTL como en el modelo de oro de Python.
+
+% =============================================================================
+\section{Requisitos del proyecto}
+% =============================================================================
+
+\subsection{Alcance y entregables}
+\begin{description}[leftmargin=4.2em,style=nextline]
+  \item[PRJ-1:] El proyecto implementará y verificará una FFT Real de 2048 puntos
+    para análisis de espectro de audio sobre la Sipeed Tang Primer 20K.
+  \item[PRJ-2:] La documentación de diseño autoritativa se almacenará en un área
+    de documentación local del proyecto, junto con las notas de contexto, los
+    \emph{assets} de imagen y los PDF generados.
+  \item[PRJ-3:] El código de referencia en Python, las demos de investigación, el
+    RTL sintetizable y los \emph{testbenches} se mantendrán en áreas separadas
+    del proyecto, con fronteras de propiedad claras.
+  \item[PRJ-4:] Todo fichero Verilog de arranque o marcador de posición se
+    sustituirá por módulos RTL sintetizables y \emph{testbenches} acompañantes
+    antes de la integración hardware.
+\end{description}
+
+\subsection{Requisitos funcionales}
+\begin{description}[leftmargin=4.2em,style=nextline]
+  \item[FUN-1:] El sistema aceptará exactamente 2048 muestras reales con signo de
+    16 bits por \emph{frame} de procesamiento.
+  \item[FUN-2:] La frecuencia de muestreo nominal será $f_s = 48$\,kHz. Las demos
+    pueden usar tasas exploratorias, pero toda prueba de aceptación usará la
+    configuración objetivo de 2048 muestras a 48\,kHz o documentará el conjunto
+    de parámetros alternativo.
+  \item[FUN-3:] Las fuentes de \emph{front-end} soportadas serán un micrófono
+    digital vía deserialización I2S o un micrófono analógico vía ADC de 16 bits.
+  \item[FUN-4:] El diseño empaquetará el flujo real de entrada en 1024 muestras
+    complejas mapeando muestras pares al carril real e impares al imaginario.
+  \item[FUN-5:] La transformada interna será una FFT compleja Radix-2 DIT de 1024
+    puntos.
+  \item[FUN-6:] La etapa de recombinación RFFT recuperará los 1025 \emph{bins}
+    únicos del espectro real de 2048 puntos, incluyendo los \emph{bins} de DC y
+    Nyquist correctos.
+  \item[FUN-7:] La salida soportará el cálculo de magnitud, el display y la
+    captura de resultados vía UART o USB-JTAG durante la validación hardware.
+\end{description}
+
+\subsection{Requisitos numéricos y de formato de datos}
+\begin{description}[leftmargin=4.2em,style=nextline]
+  \item[NUM-1:] Todas las muestras, valores intermedios del datapath y
+    \emph{twiddle factors} usarán representación de punto fijo con signo estilo
+    Q15, salvo que un módulo documente explícitamente un acumulador interno más
+    ancho.
+  \item[NUM-2:] Los \emph{twiddle factors} se generarán \emph{offline} en Python
+    con doble precisión, cuantizados a enteros Q15 con signo, empaquetados como
+    palabras de 32 bits y cargados en ficheros de inicialización de memoria de
+    Gowin.
+  \item[NUM-3:] No se requerirán operaciones trigonométricas ni de punto flotante
+    en el RTL sintetizable.
+  \item[NUM-4:] La multiplicación Q15 restaurará el formato Q15 desplazando el
+    producto Q30 15 bits a la derecha y saturando al rango con signo de 16 bits
+    \texttt{0x8000}--\texttt{0x7FFF}.
+  \item[NUM-5:] Cada etapa de mariposa aplicará un desplazamiento aritmético a la
+    derecha para limitar el crecimiento de \emph{overflow}; el modelo de oro de
+    Python y las comparaciones RTL tendrán en cuenta el factor de escala
+    resultante de $1/1024$.
+  \item[NUM-6:] La multiplicación compleja podrá usar la forma directa de cuatro
+    multiplicadores o la optimización de Gauss de tres multiplicadores, siempre
+    que la salida en punto fijo sea equivalente dentro de la tolerancia indicada.
+\end{description}
+
+\subsection{Requisitos de hardware y \emph{toolchain}}
+\begin{description}[leftmargin=4.2em,style=nextline]
+  \item[HW-1:] La FPGA objetivo será la Gowin GW2A-LV18PG256C8/I7 sobre la
+    Sipeed Tang Primer 20K.
+  \item[HW-2:] La implementación cabrá en los recursos en chip: 20\,736 LUT4,
+    15\,552 \emph{flip-flops}, 828\,Kbits de SRAM de bloque, 48 multiplicadores
+    DSP y 4 PLL.
+  \item[HW-3:] La BSRAM en chip se usará para \emph{sample buffers}, memorias de
+    trabajo, almacenamiento de bit-reversal y ROM de \emph{twiddles}. Los
+    \emph{slices} DSP se usarán para las multiplicaciones de mariposa y
+    recombinación.
+  \item[HW-4:] El diseño operará a $f_{clk} \geq 50$\,MHz. A $f_s = 48$\,kHz y
+    $N = 2048$, un \emph{frame} dura aproximadamente 21.3\,ms, por lo que la
+    arquitectura iterativa completará un \emph{frame} dentro de ese intervalo.
+  \item[HW-5:] Gowin EDA versión 1.9.8 o superior será la herramienta principal
+    de síntesis, \emph{place-and-route} y generación de \emph{bitstream}. Podrá
+    usarse OpenFPGALoader para la programación por línea de comandos.
+  \item[HW-6:] La puesta en marcha hardware sobre la placa de extensión Dock
+    usará el depurador USB-JTAG/UART integrado; el DIP \#1 del Dock se habilitará
+    antes de programar la placa.
+\end{description}
+
+\subsection{Requisitos de RTL y verificación}
+\begin{description}[leftmargin=4.2em,style=nextline]
+  \item[RTL-1:] El RTL se dividirá en módulos verificables de forma independiente:
+    \texttt{sample\_buffer}, \texttt{pack\_real\_to\_complex},
+    \texttt{bit\_reverse}, \texttt{twiddle\_rom} y \texttt{butterfly\_radix2};
+    más \texttt{fft\_stage\_controller}, \texttt{complex\_fft\_core},
+    \texttt{rfft\_recombine}, \texttt{magnitude\_calc} (opcional) y el
+    nivel superior \texttt{rfft\_top}.
+  \item[RTL-2:] Cada módulo tendrá un \emph{testbench} enfocado antes de la
+    integración completa del sistema.
+  \item[RTL-3:] Los estímulos de prueba y las salidas esperadas se generarán a
+    partir del modelo de referencia RFFT en Python del proyecto.
+  \item[RTL-4:] La demo de espectro del micrófono se tratará como visualizador de
+    investigación, no como evidencia de aceptación final, salvo que su tamaño de
+    \emph{frame}, tasa de muestreo y manejo de escala coincidan con el objetivo
+    hardware.
+  \item[RTL-5:] El RTL completo pasará la simulación, la verificación
+    post-síntesis y las comprobaciones de captura hardware antes de considerar el
+    proyecto completo.
+\end{description}
+
+% =============================================================================
+\section{Plan de verificación}
+% =============================================================================
+
+\subsection{Estrategia general}
+La estrategia de verificación sigue un enfoque \emph{bottom-up}: cada módulo se
+verifica individualmente antes de la integración del sistema completo, siguiendo
+la jerarquía de módulos definida en la guía de diseño RTL.
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{Simulación funcional (RTL):} cada módulo se simula con un
+    \emph{testbench} Verilog/SystemVerilog; los estímulos y salidas esperadas son
+    generados por el modelo de oro de Python.
+  \item \textbf{Verificación numérica:} se usa \texttt{numpy.fft.rfft(x, n=2048)}
+    como referencia. Como el RTL aplica un factor de escala total de $1/1024$, las
+    salidas de Python se dividen por 1024 antes de comparar. La tolerancia de
+    aceptación es $\pm2$\,LSB (cuantización Q15 más un error de redondeo por
+    etapa).
+  \item \textbf{Verificación post-síntesis:} los \emph{testbenches} se re-ejecutan
+    con el \emph{netlist} sintetizado en Gowin EDA para confirmar \emph{timing} y
+    uso de recursos.
+  \item \textbf{Verificación hardware:} los \emph{bins} de salida se capturan por
+    UART/USB-JTAG (depurador integrado en la placa Dock) y se comparan con el
+    modelo de oro de Python escalado.
+\end{enumerate}
+
+\subsection{Casos de prueba por módulo}
+\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{@{}p{3.2cm} p{4.6cm} p{4.6cm} p{2.0cm}@{}}
+\caption{Casos de prueba por módulo.}\label{tab:testcases}\\
+\toprule
+\textbf{Módulo} & \textbf{Caso de prueba} & \textbf{Criterio de aceptación} & \textbf{Herram.}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Módulo} & \textbf{Caso de prueba} & \textbf{Criterio de aceptación} & \textbf{Herram.}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{sample\_buffer} & Inyectar 2048 muestras a 48\,kHz; revisar señal \emph{done} & Las 2048 muestras almacenadas; \emph{frame-done} asertado exactamente una vez por \emph{frame} & ModelSim \\
+\texttt{Q15 conversion} & Señal sinusoidal $f=1$\,kHz, $f_s=48$\,kHz & Valores Q15 dentro de $\pm1$\,LSB vs.\ Python & ModelSim \\
+\texttt{Q15 conversion} & Saturación: amplitud $>1.0$ & Satura a \texttt{0x7FFF} (positivo) o \texttt{0x8000} (negativo), sin \emph{wrap-around} & ModelSim \\
+\texttt{pack\_real\_to\_complex} & Entrada $[x_0,x_1,x_2,x_3,\dots]$ & Salida $[x_0+jx_1, x_2+jx_3,\dots]$; 1024 muestras complejas & ModelSim \\
+\texttt{twiddle\_rom} & Leer $W_{1024}^{k}$, $k=0\dots511$ & Coincide con tabla Python dentro de $\pm1$\,LSB & ModelSim \\
+\texttt{twiddle\_rom} & Leer $W_{2048}^{k}$, $k=0\dots1024$ (tabla de recombinación) & Coincide con tabla Python dentro de $\pm1$\,LSB & ModelSim \\
+\texttt{bit\_reverse} & Entrada $N=8$: $[0,1,2,3,4,5,6,7]$ & Salida: $[0,4,2,6,1,5,3,7]$ & ModelSim \\
+\texttt{bit\_reverse} & Secuencia aleatoria, $N=1024$ & Índices coinciden con \texttt{bit\_reverse(i,10)} del \emph{script} Python & Python + ModelSim \\
+\texttt{butterfly\_radix2} & $E=0.5$, $O=0.5$, $W=1+j0$ (Q15) & Top $=1.0$, Bot $=0.0$; ambos dentro de $\pm1$\,LSB & ModelSim \\
+\texttt{butterfly\_radix2} & Cuasi-\emph{overflow}: $|E|=|O|=0.9999$ & Sin \emph{wrap-around}; saturación a \texttt{0x7FFF}/\texttt{0x8000} si es necesario; el \emph{shift} de 1 bit por etapa previene acumulación & ModelSim \\
+\texttt{butterfly\_radix2} & \emph{Shift} Q30 post-multiplicación: producto de dos valores Q15 & \emph{Shift} de 15 bits con saturación restaura el resultado Q15 dentro de $\pm1$\,LSB & ModelSim \\
+\texttt{complex\_fft\_core} ($N=8$ smoke) & Impulso: $z[0]=1+j0$, resto $=0$ & $Z[k]=1+j0$ para todo $k$ (tras corrección de escala $\times8$) & Python + ModelSim \\
+\texttt{complex\_fft\_core} ($N=8$ tono) & Sinusoide compleja pura a $f=N/8$ & Pico único en \emph{bin} $k=1$ & numpy vs.\ RTL \\
+\texttt{complex\_fft\_core} ($N=1024$) & Señal de audio real empaquetada (WAV, $f_s=48$\,kHz) & SNR $>40$\,dB vs.\ \texttt{numpy.fft.fft()} escalado & Python + ModelSim \\
+\texttt{rfft\_recombine} & Impulso $x[0]=1$, $N=2048$ & Los 1025 \emph{bins} $=1/1024$ (tras escala RTL); coincide con \texttt{numpy.fft.rfft} escalado dentro de $\pm2$\,LSB & Python + ModelSim \\
+\texttt{rfft\_recombine} & Tono único $f=440$\,Hz, $f_s=48$\,kHz, $N=2048$ & Pico en \emph{bin} $k = \lfloor 440\times 2048/48000\rfloor = 19$ dentro de $\pm2$\,LSB & Python + ModelSim \\
+\texttt{rfft\_recombine} & Casos especiales DC y Nyquist & $X[0]$ y $X[1024]$ puramente reales; coinciden con referencia Python & ModelSim \\
+Full system & Sinusoide $f=440$\,Hz, $N=2048$, $f_s=48$\,kHz & Pico en \emph{bin} $k=19$; $|\text{error}|\leq 2$\,LSB & Gowin EDA + UART \\
+Full system & Dos tonos: $f_1=440$\,Hz, $f_2=2$\,kHz & Dos picos en \emph{bins} $k=19$ y $k=85$; sin picos espurios & Gowin EDA + UART \\
+Full system & Ruido blanco gaussiano, $f_s=48$\,kHz & Espectro plano dentro de $\pm3$\,dB en los 1025 \emph{bins} & Python + FPGA \\
+\end{longtable}
+
+\subsection{Métricas de cobertura}
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Cobertura funcional:} 100\% de los estados de la FSM del
+    controlador de etapas FFT (10 etapas, \emph{start}, \emph{done}).
+  \item \textbf{Cobertura de ramas:} $\geq 90\%$ en todos los módulos de control.
+  \item \textbf{Tamaño de FFT:} el diseño apunta a $N=2048$ (FFT compleja interna
+    de 1024 puntos). Se usan \emph{smoke tests} a $N_{\text{internal}}=8$ y
+    $N_{\text{internal}}=64$ durante la puesta en marcha de módulos.
+  \item \textbf{Casos límite:} entrada toda en cero, amplitud máxima positiva
+    (\texttt{0x7FFF}), amplitud máxima negativa (\texttt{0x8000}), rutas de
+    saturación en las etapas de mariposa y recombinación.
+  \item \textbf{Corrección de escala:} cada comparación numérica usa la referencia
+    Python dividida por 1024 para tener en cuenta el factor de escala de
+    acumulación del RTL.
+\end{itemize}
+
+\subsection{Entorno de verificación}
+\renewcommand{\arraystretch}{1.2}
+\begin{table}[H]
+\centering
+\caption{Herramientas del entorno de verificación.}\label{tab:env}
+\begin{tabularx}{\textwidth}{@{}l Y@{}}
+\toprule
+\textbf{Herramienta} & \textbf{Uso}\\
+\midrule
+Python 3.x + NumPy & Modelo de oro, estímulos, generación de \emph{twiddle factors}, comparación con corrección de escala.\\
+ModelSim / Icarus & Simulación RTL y post-síntesis.\\
+Gowin EDA ($\geq$ v1.9.8) & Síntesis, P\&R y programación de la Tang Primer 20K.\\
+GTKWave & Visualización de formas de onda.\\
+USB-JTAG / UART & Captura de resultados desde hardware (depurador integrado, placa Dock).\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Criterio global de aprobación}
+El sistema se considera verificado cuando se cumplen todas las condiciones
+siguientes:
+\begin{enumerate}[leftmargin=1.6em]
+  \item Todos los \emph{testbenches} unitarios pasan sin errores de simulación.
+  \item El error numérico de la RFFT completa de 2048 puntos es $\leq 2$\,LSB
+    (Q15) comparado con la referencia Python corregida en escala.
+  \item El diseño sintetiza dentro de los recursos de la Tang Primer 20K:
+    DSP $\leq 48$, BSRAM $\leq 828$\,Kbits.
+  \item La frecuencia máxima de operación satisface el requisito de tiempo real
+    ($f_{clk} \geq 50$\,MHz); a $f_s = 48$\,kHz y $N = 2048$, un \emph{frame}
+    completo debe terminar dentro de 21.3\,ms ($\sim 1.07\times10^6$ ciclos a
+    50\,MHz), dando un margen de \emph{timing} amplio.
+  \item La demostración hardware con una señal de audio real a 48\,kHz produce el
+    espectro correcto de 1025 \emph{bins} visible en el display.
+\end{enumerate}
+
+% =============================================================================
+\section{Resultados finales de verificación RTL}
+% =============================================================================
+La suite de verificación del proyecto (\texttt{verification\_plan/run\_tests.sh})
+ejecuta los \emph{testbenches} con Icarus Verilog de forma \emph{bottom-up},
+bloque por bloque. Los registros (\texttt{verification\_plan/results/*.log})
+confirman que \textbf{todos los \emph{testbenches} pasan sin errores de
+simulación}, satisfaciendo el criterio de aprobación n.\textsuperscript{o}~1.
+La Tabla~\ref{tab:results} resume los resultados obtenidos.
+
+\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{@{}p{2.0cm} p{4.0cm} p{6.6cm} c@{}}
+\caption{Resultados de la suite de verificación RTL (Icarus Verilog).}\label{tab:results}\\
+\toprule
+\textbf{Bloque} & \textbf{Prueba} & \textbf{Módulos / cobertura} & \textbf{Estado}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Bloque} & \textbf{Prueba} & \textbf{Módulos / cobertura} & \textbf{Estado}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+B1 & \texttt{uart\_rx} & \texttt{uart\_rx.v} (recepción serie) & \textbf{PASS} \\
+B1 & \texttt{ram\_buffer} & \texttt{dual\_port\_ram\_buffer.v} & \textbf{PASS} \\
+B1 & \texttt{pack} & \texttt{block1\_top} (FIFO + ping-pong + pack) & \textbf{PASS} \\
+B1 & \texttt{e2e\_block1} & cadena completa \texttt{block1/*} & \textbf{PASS} \\
+B2 & \texttt{bit\_reverse} & \texttt{bit\_reverse.v} ($N=8$, $N=1024$) & \textbf{PASS} \\
+B2 & \texttt{permutation} & \texttt{permutation\_controller.v} + RAM + bit-rev & \textbf{PASS} \\
+B2 & \texttt{permutation\_1024} & permutación, caso $N=1024$ & \textbf{PASS} \\
+B2 & \texttt{permutation\_ready\_pause} & permutación con \emph{handshake ready/pause} & \textbf{PASS} \\
+B3+B4 & \texttt{complex\_fft\_core} & núcleo FFT + twiddles + mariposa; 1024 \emph{bins}, 0 errores $>5$\,LSB & \textbf{PASS} \\
+B5 & \texttt{rfft\_recombine} & \texttt{rfft\_recombine.v}; 512 \emph{bins} vs.\ golden, tol.\ $\pm4$\,LSB & \textbf{PASS} \\
+Integ. & \texttt{chain\_b2b4recomb} & B2$\to$B4$\to$recomb; $Z$ y $X$ vs.\ golden numpy & \textbf{PASS} \\
+Integ. & \texttt{block1\_2\_fusion} & B1$+$B2; 1024 muestras en orden bit-reversed & \textbf{PASS} \\
+Integ. & \texttt{scope\_e2e} & UART$\to$B1$\to$B2$\to$B4(B3)$\to$recomb$\to$LCD & \textbf{PASS} \\
+\end{longtable}
+
+\paragraph{Observaciones.}
+\begin{itemize}[leftmargin=1.4em]
+  \item El núcleo \texttt{complex\_fft\_core} verifica los 1024 \emph{bins} con
+        cero errores por encima de 5\,LSB, dentro de la tolerancia objetivo.
+  \item La prueba \texttt{scope\_e2e} ejercita el \emph{pipeline} completo
+        (UART $\to$ Bloques 1--5 $\to$ LCD) con un tono de 3\,kHz y genera un
+        \emph{frame} de salida (\texttt{rfft\_scope\_frame.pgm}).
+  \item La prueba \texttt{mic\_record\_test} (grabación de audio real con
+        ESP32 + MAX9814) es \emph{hardware-in-the-loop} y se documenta como
+        prueba manual; no forma parte de la suite automatizada.
+\end{itemize}
+
+\end{document}

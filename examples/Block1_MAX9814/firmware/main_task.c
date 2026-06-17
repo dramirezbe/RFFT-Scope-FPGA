@@ -59,6 +59,8 @@ void app_main() {
 
     lvgl_init();
 
-    // Create the audio task that reads I2S data
-    xTaskCreate(max9814_task, "max9814_task", 2048, NULL, 5, NULL);
+    // Create the audio task that reads I2S data.
+    // Stack 4096B: 2048 era arriesgado al formatear con ESP_LOGI (un
+    // desborde de stack reiniciaba la tarea y congelaba la TX).
+    xTaskCreate(max9814_task, "max9814_task", 4096, NULL, 5, NULL);
 }

@@ -34,11 +34,16 @@ esp_err_t max9814_init(void)
 {
 	esp_err_t err;
 
-	/* Configure adc_continuous handle */
+	/* Configure adc_continuous handle.
+	 * Buffer dimensionado para absorber jitter de la tarea de TX: con
+	 * 32768 bytes guardamos ~8 frames (~370 ms a 44.1 kHz) en lugar de los
+	 * ~93 ms (2 bloques) originales, que se desbordaban en 1-2 s.
+	 * flush_pool=1: si llega a desbordar, descarta lo viejo y sigue en vez
+	 * de quedarse atascado devolviendo errores. */
 	adc_continuous_handle_cfg_t handle_cfg = {
-		.max_store_buf_size = 8192,
+		.max_store_buf_size = 32768,
 		.conv_frame_size = 2048,
-		.flags = { .flush_pool = 0 },
+		.flags = { .flush_pool = 1 },
 	};
 
 	err = adc_continuous_new_handle(&handle_cfg, &s_adc_handle);
@@ -148,45 +153,47 @@ void max9814_task(void *arg)
 {
 	(void)arg;
 
-	size_t res_buf_size = BLOCK_SAMPLES * 4; /* generous */
-	uint8_t *res_buf = (uint8_t*)heap_caps_malloc(res_buf_size, MALLOC_CAP_DMA);
-	if (!res_buf) {
-		ESP_LOGE(TAG, "Failed to allocate ADC result buffer");
+	/* Todos los buffers se reservan UNA sola vez, fuera del lazo caliente.
+	 * Antes se hacía malloc/free de ~8 KB (parsed) en cada vuelta (cada
+	 * ~46 ms), lo que añadía latencia y fragmentaba el heap; un fallo de
+	 * malloc dejaba la tarea sin transmitir. */
+	const size_t payload_bytes = BLOCK_SAMPLES * 2;
+	uint8_t *payload = (uint8_t*)heap_caps_malloc(payload_bytes, MALLOC_CAP_8BIT);
+	adc_continuous_data_t *parsed = (adc_continuous_data_t*)heap_caps_malloc(sizeof(adc_continuous_data_t) * BLOCK_SAMPLES, MALLOC_CAP_8BIT);
+	if (!payload || !parsed) {
+		ESP_LOGE(TAG, "Failed to allocate task buffers");
+		heap_caps_free(payload);
+		heap_caps_free(parsed);
 		vTaskDelete(NULL);
 		return;
 	}
 
-	size_t payload_bytes = BLOCK_SAMPLES * 2;
-	uint8_t *payload = (uint8_t*)heap_caps_malloc(payload_bytes, MALLOC_CAP_8BIT);
-	if (!payload) {
-		ESP_LOGE(TAG, "Failed to allocate payload buffer");
-		heap_caps_free(res_buf);
-		vTaskDelete(NULL);
-		return;
-	}
+	const uint8_t header[4] = {
+		FRAME_START_0,
+		FRAME_START_1,
+		(uint8_t)((BLOCK_SAMPLES >> 8) & 0xFF),
+		(uint8_t)(BLOCK_SAMPLES & 0xFF),
+	};
+	const uint8_t tail[2] = { FRAME_END_0, FRAME_END_1 };
+
+	/* Telemetría limitada a 1 de cada LOG_EVERY bloques: el ESP_LOGI por
+	 * bloque salía bloqueando por la consola (~5 ms) y rompía el tiempo
+	 * real (presupuesto por bloque ~46 ms, UART ya consume ~44.5 ms),
+	 * provocando el desborde del ADC y la congelación de la gráfica. */
+	const uint32_t LOG_EVERY = 100;
+	uint32_t block_count = 0;
 
 	while (1) {
-		/* Use read+parse helper to get typed samples */
-		adc_continuous_data_t *parsed = (adc_continuous_data_t*)heap_caps_malloc(sizeof(adc_continuous_data_t) * BLOCK_SAMPLES, MALLOC_CAP_8BIT);
-		if (!parsed) {
-			ESP_LOGE(TAG, "Failed to allocate parsed buffer");
-			vTaskDelay(pdMS_TO_TICKS(10));
-			continue;
-		}
-
 		uint32_t num_samples = 0;
 		esp_err_t err = adc_continuous_read_parse(s_adc_handle, parsed, BLOCK_SAMPLES, &num_samples, 1000);
 		if (err != ESP_OK) {
 			ESP_LOGE(TAG, "adc_continuous_read_parse failed: %s", esp_err_to_name(err));
-			heap_caps_free(parsed);
 			vTaskDelay(pdMS_TO_TICKS(10));
 			continue;
 		}
 
 		if (num_samples < BLOCK_SAMPLES) {
 			/* not enough samples yet */
-			heap_caps_free(parsed);
-			vTaskDelay(pdMS_TO_TICKS(1));
 			continue;
 		}
 
@@ -201,35 +208,20 @@ void max9814_task(void *arg)
 			payload[2*i + 0] = (uint8_t)((sample >> 8) & 0xFF);
 			payload[2*i + 1] = (uint8_t)(sample & 0xFF);
 		}
-		heap_caps_free(parsed);
 
-		uint8_t header[4];
-		header[0] = FRAME_START_0;
-		header[1] = FRAME_START_1;
-		header[2] = (uint8_t)((BLOCK_SAMPLES >> 8) & 0xFF);
-		header[3] = (uint8_t)(BLOCK_SAMPLES & 0xFF);
-
-		int64_t t0 = esp_timer_get_time();
 		ssize_t hlen = uart_write_bytes(UART_PORT, (const char*)header, sizeof(header));
 		ssize_t plen = uart_write_bytes(UART_PORT, (const char*)payload, payload_bytes);
-		uint8_t tail[2] = { FRAME_END_0, FRAME_END_1 };
 		ssize_t tlen = uart_write_bytes(UART_PORT, (const char*)tail, sizeof(tail));
 		uart_wait_tx_done(UART_PORT, 2000 / portTICK_PERIOD_MS);
-		int64_t t1 = esp_timer_get_time();
 
 		if (hlen < 0 || plen < 0 || tlen < 0) {
 			ESP_LOGE(TAG, "uart_write_bytes error during block send");
-		} else {
-			int64_t dt_us = t1 - t0;
-			int64_t bytes_sent = (ssize_t)sizeof(header) + plen + (ssize_t)sizeof(tail);
-			double bps = (double)bytes_sent * 8.0 * 1e6 / (double)dt_us;
-			ESP_LOGI(TAG, "Block sent: %lld bytes in %lld us => %.0f bps (%.1f kbps)", bytes_sent, dt_us, bps, bps/1000.0);
+		} else if ((++block_count % LOG_EVERY) == 0) {
+			ESP_LOGI(TAG, "TX alive: %lu blocks sent", (unsigned long)block_count);
 		}
-
-		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 
-	heap_caps_free(res_buf);
+	heap_caps_free(parsed);
 	heap_caps_free(payload);
 	vTaskDelete(NULL);
 }
