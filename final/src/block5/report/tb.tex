@@ -1,0 +1,420 @@
+% ============================================================
+%  Bloque 5 — Testbench tb_rfft_recombine
+%  Documento del testbench unitario de la recombinación RFFT
+%  Compilar con: pdflatex
+% ============================================================
+\documentclass[12pt, a4paper]{article}
+
+% ---------- Packages ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric,
+                calc, fit, backgrounds,
+                decorations.pathreplacing, babel}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{pdflscape}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+% ---------- Estilo de código Verilog ----------
+\lstset{
+    language=Verilog,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue!80}\bfseries,
+    commentstyle=\color{black!50}\itshape,
+    numbers=left,
+    numberstyle=\tiny\color{black!40},
+    frame=single,
+    breaklines=true,
+    tabsize=2
+}
+
+% ---------- Title ----------
+\title{\textbf{Bloque 5 — Testbench Unitario}\\
+       \large \texttt{tb\_rfft\_recombine}}
+\author{}
+\date{}
+
+% ============================================================
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------
+\section{Descripción General}
+
+\texttt{tb\_rfft\_recombine} es el testbench unitario (nivel 12 de 13 en el
+plan de verificación) que valida el módulo \texttt{rfft\_recombine} del
+Bloque 5 de forma aislada. Inyecta 1024 bins complejos $Z[k]$ (salida del
+Bloque 4) con el protocolo \texttt{fft\_valid/fft\_done}, captura los 512
+bins reales $X[k]$ emitidos por la recombinación con decimación a bins
+pares, y los compara contra un modelo dorado (\emph{golden}) generado por
+Python + NumPy.
+
+\textbf{Objetivo:} verificar que la recombinación RFFT (ecuaciones de
+desempaquetado + butterfly con $W_{2048}^k$) es correcta a nivel de bit en
+Q15, con tolerancia controlada.
+
+% ------------------------------------------------------------
+\section{Estructura del Testbench}
+
+El testbench instancia tres componentes:
+
+\begin{table}[H]
+\centering
+\caption{Componentes del testbench}
+\begin{tabular}{p{3.5cm} p{2.8cm} p{8cm}}
+\toprule
+\textbf{Componente} & \textbf{Módulo} & \textbf{Rol} \\
+\midrule
+DUT & \texttt{rfft\_recombine} &
+  Módulo bajo prueba. Recibe $Z[k]$, emite $X[k]$ decimado. \\
+Twiddle ROM & \texttt{twiddle\_rom} (B3) &
+  Provee $W_{2048}^k$ a través del puerto \texttt{tw\_addr/data\_recomb}.
+  Inicializada con \texttt{twiddles\_recomb.hex}. \\
+Verificador & Lógica en el \texttt{always} del TB &
+  Compara cada \texttt{g\_valid} contra el golden almacenado en
+  \texttt{x\_gold[0..511]}. Acumula errores. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{landscape}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance = 6mm and 10mm,
+    box/.style = {draw, rounded corners=3pt,
+                  minimum width=2.6cm, minimum height=0.85cm,
+                  align=center, font=\small},
+    arr/.style = {-{Stealth[length=3pt]}, thick}
+]
+    \node[box, fill=black!5] (tb) at (0,0) {\textbf{TB Driver}\\[2pt]
+        \texttt{clk}, \texttt{rst\_n}\\[2pt]
+        estímulo: 1024 bins\\desde \texttt{z\_in.hex}};
+
+    \node[box] (dut) at (5,0) {\textbf{DUT}\\[2pt]
+        \texttt{rfft\_recombine}};
+
+    \node[box] (rom) at (2.5, 2.5) {\textbf{twiddle\_rom}\\[2pt]
+        \texttt{twiddles\_recomb.hex}};
+
+    \node[box, fill=black!5] (chk) at (9,0) {\textbf{Checker}\\[2pt]
+        compara 512 bins\\vs \texttt{x\_gold.hex}\\[2pt]
+        tol $\pm 4$ LSB};
+
+    \draw[arr] (tb) -- (dut)
+        node[midway, above=-1pt, font=\tiny\ttfamily] {fft\_real/imag, valid, done};
+    \draw[arr] (dut.north) -- (dut.north |- rom.south)
+        node[near start, right=-2pt, font=\tiny\ttfamily] {tw\_addr[10:0]};
+    \draw[arr] (rom.south) -- (rom.south |- dut.north)
+        node[near start, right=-2pt, font=\tiny\ttfamily] {tw\_data[31:0]};
+    \draw[arr] (dut) -- (chk)
+        node[midway, above=-1pt, font=\tiny\ttfamily] {g\_real/imag, valid, done};
+
+    % Caja del TB
+    \begin{scope}[on background layer]
+        \node[fit=(tb)(dut)(chk)(rom), draw=gray, dashed, rounded corners=6pt,
+              inner sep=5mm, label={[gray]above:\textbf{tb\_rfft\_recombine}}] {};
+    \end{scope}
+\end{tikzpicture}
+\caption{Diagrama de bloques del testbench. El driver inyecta los 1024 bins
+         $Z[k]$ desde \texttt{recomb\_z\_in.hex}. El DUT consulta la ROM de
+         twiddles de recombinación y emite 512 bins reales. El checker compara
+         cada bin contra \texttt{recomb\_x\_gold.hex} con tolerancia $\pm 4$ LSB.}
+\label{fig:tb_structure}
+\end{figure}
+\end{landscape}
+
+% ------------------------------------------------------------
+\section{Vectores de Prueba}
+
+Los vectores son generados por \texttt{scripts/gen\_e2e\_vectors.py} usando
+el modelo dorado de Python con NumPy:
+
+\begin{Verbatim}[fontsize=\footnotesize, frame=single]
+import numpy as np
+
+def rfft_golden(x):
+    return np.fft.rfft(x, n=2048) / 1024
+\end{Verbatim}
+
+Se generan dos archivos \texttt{.hex} (formato \texttt{\$readmemh} de
+Verilog, un valor de 32 bits por línea):
+
+\begin{table}[H]
+\centering
+\caption{Archivos de vectores de prueba}
+\begin{tabular}{p{3.5cm} p{2.5cm} p{2.5cm} p{5.5cm}}
+\toprule
+\textbf{Archivo} & \textbf{Entradas} & \textbf{Formato} & \textbf{Contenido} \\
+\midrule
+\texttt{tb/vectors/}\newline\texttt{recomb\_z\_in.hex}
+  & 1024 & \texttt{\{real[15:0],}\newline\texttt{ imag[15:0]\}}
+  & $Z[k]$: FFT compleja del tono empaquetado, escalada $1/1024$.
+        Formato Q15, 32 bits por línea. \\
+\texttt{tb/vectors/}\newline\texttt{recomb\_x\_gold.hex}
+  & 512 & \texttt{\{real[15:0],}\newline\texttt{ imag[15:0]\}}
+  & $X[k]$: golden esperado (solo bins pares $k=0,2,\ldots,1022$).
+        Parte imaginaria $\approx 0$ (espectro real). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Tono de prueba:} frecuencia 3\,kHz, $f_s=48$\,kHz, $N=2048$,
+amplitud $0.5$ en Q15. Esto produce un pico en el bin
+$k = \lfloor 3000 \times 2048 / 48000 \rceil = 128$ del espectro completo,
+que corresponde al bin de display $d = k/2 = 64$.
+
+% ------------------------------------------------------------
+\section{Protocolo de Estímulo}
+
+El driver del testbench sigue la secuencia de la Figura~\ref{fig:tb_timing}:
+
+\begin{landscape}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    scale=0.85,
+    timeline/.style = {->, thick},
+    pulse/.style = {thick}
+]
+    % Tiempo
+    \draw[->] (0,0) -- (14,0) node[right] {$t$ (ciclos)};
+
+    % Señales
+    \node[left] at (-0.5, -1.2) {\texttt{rst\_n}};
+    \draw (0,-1.5) -- (1,-1.5) -- (1,-1) -- (14,-1);
+
+    \node[left] at (-0.5, -2.2) {\texttt{fft\_valid}};
+    \draw (0,-2.5) -- (2,-2.5);
+    \draw[pulse] (2,-2.5) -- (2,-2) -- (11,-2) -- (11,-2.5);
+    \draw (11,-2.5) -- (14,-2.5);
+
+    \node[left] at (-0.5, -3.2) {\texttt{fft\_done}};
+    \draw (0,-3.5) -- (10.5,-3.5);
+    \draw[pulse] (10.5,-3.5) -- (10.5,-3) -- (11,-3) -- (11,-3.5);
+    \draw (11,-3.5) -- (14,-3.5);
+
+    \node[left] at (-0.5, -4.2) {\texttt{g\_valid}};
+    \draw (0,-4.5) -- (2.5,-4.5);
+    % 512 pulsos con gaps (~5 ciclos entre pulsos)
+    \foreach \i in {0,1,2,3} {
+        \draw[pulse] (2.5+\i*0.8, -4.5) -- (2.5+\i*0.8, -3.8)
+                     -- (2.7+\i*0.8, -3.8) -- (2.7+\i*0.8, -4.5);
+    }
+    \node at (6.5, -4.8) {\footnotesize\ldots\ 512 pulsos con gaps de $\sim$5 ciclos};
+
+    \node[left] at (-0.5, -5.2) {\texttt{g\_done}};
+    \draw (0,-5.5) -- (12,-5.5);
+    \draw[pulse] (12,-5.5) -- (12,-5) -- (12.3,-5) -- (12.3,-5.5);
+    \draw (12.3,-5.5) -- (14,-5.5);
+
+    % Anotaciones
+    \draw[decorate, decoration={brace,amplitude=6pt}]
+        (2,-0.5) -- (11,-0.5) node[midway, above=7pt] {\footnotesize{1024 ciclos de datos}};
+    \draw[decorate, decoration={brace,amplitude=6pt,mirror}]
+        (2.5,-6.2) -- (12,-6.2) node[midway, below=7pt] {\footnotesize{$\approx$2560 ciclos de cómputo}};
+\end{tikzpicture}
+\caption{Diagrama de tiempos simplificado del testbench. El reset se libera
+         tras 5 ciclos. Los 1024 bins $Z[k]$ se envían con \texttt{fft\_valid}
+         continuo; \texttt{fft\_done} se activa simultáneamente con el último
+         \texttt{fft\_valid}. La salida \texttt{g\_valid} emite 512 pulsos
+         espaciados $\sim$5 ciclos (por la latencia de la FSM). Finalmente
+         \texttt{g\_done} marca el fin del cómputo.}
+\label{fig:tb_timing}
+\end{figure}
+\end{landscape}
+
+\subsection{Secuencia temporal}
+
+\begin{Verbatim}[fontsize=\footnotesize, frame=single]
+1. rst_n = 0 durante 5 ciclos
+2. rst_n = 1, esperar 5 ciclos
+3. for i = 0..1023:
+       @(posedge clk)
+       fft_real  <= z_in[i][31:16]
+       fft_imag  <= z_in[i][15:0]
+       fft_valid <= 1
+       fft_done  <= (i == 1023)
+4. @(posedge clk): fft_valid=0, fft_done=0
+5. Esperar g_done con timeout de 20000 ciclos
+6. Verificar: out_cnt == 512, done_seen == true, errors == 0
+\end{Verbatim}
+
+% ------------------------------------------------------------
+\section{Verificador}
+
+El verificador opera en el flanco positivo de \texttt{clk}, muestreando cada
+\texttt{g\_valid}:
+
+\begin{lstlisting}[
+    basicstyle=\footnotesize\ttfamily,
+    frame=single,
+    language=Verilog
+]
+always @(posedge clk) begin
+    if (rst_n && g_valid) begin
+        got_r = $signed(g_real);
+        got_i = $signed(g_imag);
+        exp_r = $signed(x_gold[out_cnt][31:16]);
+        exp_i = $signed(x_gold[out_cnt][15:0]);
+        er = (got_r > exp_r) ? got_r - exp_r : exp_r - got_r;
+        ei = (got_i > exp_i) ? got_i - exp_i : exp_i - got_i;
+        if (er > TOL || ei > TOL) begin
+            if (errors < 16)
+                $display("FAIL bin %0d: got (%0d,%0d) exp (%0d,%0d)",
+                         out_cnt, got_r, got_i, exp_r, exp_i);
+            errors = errors + 1;
+        end
+        out_cnt = out_cnt + 1;
+    end
+    if (rst_n && g_done) done_seen = 1'b1;
+end
+\end{lstlisting}
+
+\subsection{Tolerancia}
+
+\begin{table}[H]
+\centering
+\caption{Tolerancia del verificador}
+\begin{tabular}{p{3cm} p{2.5cm} p{8cm}}
+\toprule
+\textbf{Parámetro} & \textbf{Valor} & \textbf{Justificación} \\
+\midrule
+\texttt{TOL}       & $\pm 4$ LSB &
+  Acumula: $\pm1$ LSB de cuantización de la ROM de twiddles $W_{2048}^k$,
+  $\pm2$ LSB del butterfly (4 productos Q15 con redondeo), $\pm1$ LSB de
+  margen. \\
+Errores tolerables & 0 &
+  Test unitario bit-exacto con modelo dorado determinista. Cualquier
+  discrepancia $>4$ LSB indica un bug en el RTL. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Se muestran hasta 16 errores de detalle antes de abortar la impresión para
+no saturar la salida de simulación.
+
+% ------------------------------------------------------------
+\section{Comando de Simulación}
+
+El testbench se ejecuta con Icarus Verilog 12.0 desde el directorio
+\texttt{final/} (necesario para que \texttt{\$readmemh} resuelva las rutas
+relativas de los archivos \texttt{.hex}):
+
+\begin{Verbatim}[fontsize=\footnotesize, frame=single]
+cd final/
+
+iverilog -g2012 -o tb_rec tb/tb_rfft_recombine.v \
+  src/block5/rfft_recombine.v \
+  src/block3/butterfly_radix2.v \
+  src/block3/twiddle_rom.v
+
+vvp tb_rec
+\end{Verbatim}
+
+\textbf{Dependencias:}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{src/block3/twiddles\_fft.hex} — ROM de twiddles FFT
+          (puerto no usado en este TB, pero requerido por la instanciación
+          de \texttt{twiddle\_rom}).
+    \item \texttt{src/block3/twiddles\_recomb.hex} — ROM de twiddles de
+          recombinación (1025$\times$32 bits, $W_{2048}^k$).
+    \item \texttt{tb/vectors/recomb\_z\_in.hex} — 1024 bins complejos de
+          entrada.
+    \item \texttt{tb/vectors/recomb\_x\_gold.hex} — 512 bins golden esperados.
+\end{itemize}
+
+% ------------------------------------------------------------
+\section{Resultado}
+
+El testbench produce una salida binaria (PASS/FAIL). La ejecución exitosa
+se ve así:
+
+\begin{Verbatim}[fontsize=\footnotesize, frame=single]
+TB RECOMBINE: PASS (512 bins vs golden, tol +-4 LSB)
+tb/tb_rfft_recombine.v:132: $finish called at 71910000 (1ps)
+\end{Verbatim}
+
+El tiempo de simulación es de aproximadamente 71.91\,$\mu$s (7,191,000 ns =
+7,191 ciclos de reloj a 50\,MHz de simulación), consistente con:
+
+\[
+\text{ciclos totales} = 1024_{\text{captura}} + 512 \times 5_{\text{FSM}}
+                      + \text{overhead} \approx 3584 + \text{margen}
+\]
+
+\subsection{Casos de fallo detectados}
+
+El verificador captura los siguientes escenarios de error:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Conteo incorrecto de bins:} si \texttt{out\_cnt} $\neq$ 512
+          al finalizar, se reporta \texttt{FAIL: se esperaban 512 bins,
+          llegaron N}.
+    \item \textbf{\texttt{g\_done} ausente:} si la señal nunca se activa
+          dentro del timeout de 20,000 ciclos, se reporta
+          \texttt{FAIL: g\_done nunca llego}.
+    \item \textbf{Error de magnitud por bin:} cada bin cuya diferencia con
+          el golden exceda $\pm 4$ LSB incrementa \texttt{errors}. Si
+          \texttt{errors} $> 0$ al final, se reporta
+          \texttt{FAIL, errores=N}.
+\end{enumerate}
+
+% ------------------------------------------------------------
+\section{Relación con Otros Testbenches}
+
+El plan de verificación del proyecto incluye 13 testbenches. El
+\texttt{tb\_rfft\_recombine} ocupa la posición \#12:
+
+\begin{table}[H]
+\centering
+\caption{Testbenches relacionados con el Bloque 5}
+\begin{tabular}{p{1.2cm} p{4cm} p{4cm} p{3cm}}
+\toprule
+\textbf{\#} & \textbf{Testbench} & \textbf{Alcance} & \textbf{Estado} \\
+\midrule
+11 & \texttt{tb\_chain\_b2b4recomb} &
+  Cadena B2$\rightarrow$B4$\rightarrow$recomb vs.\ golden &
+  PASS \\
+12 & \texttt{tb\_rfft\_recombine} &
+  Unitario de recombinación (512 bins, $\pm 4$ LSB) &
+  PASS \\
+13 & \texttt{tb\_rfft\_scope\_e2e} &
+  End-to-end: UART (tono 3\,kHz) $\rightarrow$ píxeles LCD &
+  PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El TB de cadena (\#11) valida la integración B2--B4--recomb con datos
+provenientes del bloque de permutación. El TB unitario (\#12) aísla
+únicamente la recombinación, inyectando $Z[k]$ directamente y verificando
+$X[k]$ contra el golden. El TB end-to-end (\#13) cierra el lazo completo
+desde la entrada UART hasta los píxeles del LCD.
+
+\textbf{Nota:} los módulos \texttt{spectrum\_buffer} y
+\texttt{spectrum\_draw} no tienen testbench unitario independiente. Se
+verifican exclusivamente en el TB end-to-end (\#13), donde se comprueba que
+los píxeles generados para un tono de 3\,kHz coinciden con la posición
+esperada en el display ($\pm 2$ px de tolerancia visual).
+
+\end{document}

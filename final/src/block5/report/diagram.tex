@@ -1,0 +1,484 @@
+% ============================================================
+%  Bloque 5 — RFFT Post-Procesamiento, Buffer y LCD Drawer
+%  Documento de arquitectura: módulos, señales y conexiones
+%  Compilar con: pdflatex (dos veces para referencias cruzadas)
+% ============================================================
+\documentclass[12pt, a4paper]{article}
+
+% ---------- Packages ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc,
+                fit, backgrounds, decorations.pathreplacing,
+                babel}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{pdflscape}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+% ---------- Estilo consistente con project-design.tex ----------
+\tikzset{
+    box/.style = {draw, rounded corners=3pt,
+                  minimum width=2.6cm, minimum height=0.85cm,
+                  align=center, font=\small},
+    boxw/.style = {draw, rounded corners=3pt,
+                   minimum width=3.2cm, minimum height=0.85cm,
+                   align=center, font=\small},
+    boxl/.style = {draw, rounded corners=3pt,
+                   minimum width=3.8cm, minimum height=0.95cm,
+                   align=center, font=\small},
+    arr/.style = {-{Stealth[length=4pt]}, thick},
+    arrd/.style = {-{Stealth[length=4pt]}, thick, dashed},
+    lbl/.style = {font=\footnotesize\ttfamily, text=black!70}
+}
+
+% ---------- Title ----------
+\title{\textbf{Bloque 5 — Arquitectura y Conexiones}\\
+       \large RFFT Post-Procesamiento, Spectrum Buffer y LCD Drawer}
+\author{}
+\date{}
+
+% ============================================================
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------
+\section{Descripción General}
+
+El Bloque 5 constituye la etapa final del pipeline RFFT. Recibe el espectro
+complejo $Z[k]$ (1024 bins) del Bloque 4, lo transforma al espectro real
+$X[k]$ mediante recombinación RFFT, decima a 512 bins pares para el display
+LCD de 800$\times$480, y gestiona el cruce de dominios de reloj
+(\emph{Clock Domain Crossing}, CDC) entre el reloj del sistema
+(\texttt{clk}, 27\,MHz) y el reloj de píxel (\texttt{clk\_pix}, 40.5\,MHz).
+
+Está compuesto por cuatro módulos Verilog:
+
+\begin{table}[H]
+\centering
+\caption{Módulos del Bloque 5}
+\begin{tabular}{p{3.2cm} p{4.5cm} p{7cm}}
+\toprule
+\textbf{Módulo} & \textbf{Archivo} & \textbf{Función} \\
+\midrule
+\texttt{rfft\_recombine}  & \texttt{rfft\_recombine.v}  &
+  Recombinación RFFT: $Z[k] \rightarrow X[k]$ real. Reutiliza
+  \texttt{butterfly\_radix2} del Bloque 3. Emite 512 bins pares. \\
+\texttt{spectrum\_buffer} & \texttt{spectrum\_buffer.v} &
+  RAM ping-pong de doble reloj. Calcula magnitud aproximada. CDC
+  con sincronizador 2FF. Puerta de primer frame. \\
+\texttt{spectrum\_draw}   & \texttt{spectrum\_draw.v}   &
+  Render de barras de espectro + ejes estáticos + etiquetas de
+  frecuencia (kHz). Fuente 5$\times$7 para dígitos. \\
+\texttt{block5\_lcd\_drawer} & \texttt{block5\_lcd\_drawer.v} &
+  Top wrapper: instancia \texttt{spectrum\_buffer} +
+  \texttt{spectrum\_draw}. Frontera de dominios de reloj. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\section{Diagrama de Interconexión General}
+
+La Figura~\ref{fig:block5_top} muestra los cuatro módulos del Bloque 5,
+sus entradas y salidas, y las conexiones entre ellos. Las señales que
+cruzan el CDC están marcadas con línea discontinua.
+
+\begin{landscape}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance = 7mm and 8mm,
+]
+
+    % ---- B4 (externo, referencia) ----
+    \node[boxl, fill=black!5] (b4) at (0,0) {\textbf{Bloque 4}\\$Z[k]$ 1024 bins\\+ twiddle ROM};
+
+    % ---- rfft_recombine ----
+    \node[boxw, right=of b4, xshift=10mm] (recomb) {\texttt{rfft\_recombine}\\[2pt]
+        \textit{FSM 6 estados}\\[2pt]
+        $Z[k] \rightarrow X[k]$\\recombinación RFFT\\[2pt]
+        decimación: 512 bins};
+
+    % ---- butterfly_radix2 (B3) ----
+    \node[box, above=of recomb, yshift=-3mm] (bfly) {\texttt{butterfly\_radix2}\\(del Bloque 3)\\[2pt]
+        $X[k] = X_e + W\cdot X_o$};
+
+    % ---- spectrum_buffer ----
+    \node[boxw, right=of recomb, xshift=10mm] (sbuf) {\texttt{spectrum\_buffer}\\[2pt]
+        \textit{RAM ping-pong}\\[2pt]
+        magnitud aprox.\\CDC clk $\rightarrow$ clk\_pix\\2FF sync + first\_done};
+
+    % ---- spectrum_draw ----
+    \node[boxw, right=of sbuf, xshift=10mm] (sdraw) {\texttt{spectrum\_draw}\\[2pt]
+        \textit{Render LCD}\\[2pt]
+        barras 512 px\\ejes estáticos\\etiquetas kHz 5$\times$7};
+
+    % ---- LCD ----
+    \node[box, right=of sdraw, xshift=8mm, fill=black!5] (lcd) {\textbf{LCD}\\800$\times$480\\RGB 5-6-5};
+
+    % ---- block5_lcd_drawer (wrapper) ----
+    \node[boxl, below=of sbuf, yshift=8mm, draw=blue!60, thick,
+          fill=blue!3] (wrapper) {\texttt{block5\_lcd\_drawer}\\[2pt]
+          \textit{Top wrapper del Bloque 5}};
+
+    \begin{scope}[on background layer]
+        \node[fit=(sbuf)(sdraw), draw=blue!30, dashed, rounded corners=5pt,
+              inner sep=4mm, label={[blue!60]above:\textbf{dominio clk\_pix (40.5\,MHz)}}] {};
+        \node[fit=(recomb)(b4)(bfly), draw=green!40!black, dashed, rounded corners=5pt,
+              inner sep=4mm, label={[green!40!black]above:\textbf{dominio clk (27\,MHz)}}] {};
+    \end{scope}
+
+    % ---- Conexiones ----
+    % B4 -> recomb
+    \draw[arr] (b4.east) -- (recomb.west)
+        node[lbl, midway, above=-1pt, sloped] {fft\_real/imag[15:0], fft\_valid, fft\_done};
+    % recomb -> B4 twiddle (bidireccional)
+    \draw[arrd] (recomb.north) -- (recomb.north |- bfly.south)
+        node[lbl, midway, right=-2pt] {tw\_addr[10:0]};
+    \draw[arrd] (bfly.south) -- (bfly.south |- recomb.north)
+        node[lbl, midway, left=-2pt] {tw\_data[31:0] (via B4 pass-through)};
+    % recomb -> spectrum_buffer
+    \draw[arr] (recomb.east) -- (sbuf.west)
+        node[lbl, midway, above=-1pt, sloped] {g\_real/imag[15:0], g\_valid, g\_done};
+    % spectrum_buffer -> spectrum_draw
+    \draw[arr] (sbuf.east) -- (sdraw.west)
+        node[lbl, midway, above=-1pt, sloped] {rd\_mag[15:0]};
+    \draw[arr] (sdraw.west) -- (sbuf.east)
+        node[lbl, midway, below=-1pt, sloped] {rd\_bin[8:0]};
+    % spectrum_draw -> LCD
+    \draw[arr] (sdraw.east) -- (lcd.west)
+        node[lbl, midway, above=-1pt, sloped] {lcd\_data[23:0]};
+    % lcd_ctrl coords hacia spectrum_draw (llegan de afuera)
+    \draw[arr] (sdraw.south) ++(-1.2,0) -- ++(0,-0.8)
+        node[lbl, right] {lcd\_xpos/ypos[11:0] (desde lcd\_ctrl)};
+
+\end{tikzpicture}
+\caption{Diagrama de interconexión del Bloque 5. Los módulos en el dominio
+         \texttt{clk} (27\,MHz) se muestran con borde verde; los del dominio
+         \texttt{clk\_pix} (40.5\,MHz) con borde azul. La línea discontinua
+         marca el paso del twiddle a través del Bloque 4 (pass-through).}
+\label{fig:block5_top}
+\end{figure}
+\end{landscape}
+
+% ------------------------------------------------------------
+\section{Diagrama de Estados — \texttt{rfft\_recombine}}
+
+El corazón del Bloque 5 es la máquina de estados finitos (FSM) del módulo
+\texttt{rfft\_recombine}, que controla la captura de $Z[k]$, la lectura de
+la RAM interna y la ROM de twiddles, y la emisión decimada de $X[k]$.
+
+La Figura~\ref{fig:recomb_fsm} muestra los 6 estados y sus transiciones.
+Cada bin de salida requiere 5 ciclos (SET $\rightarrow$ WAIT $\rightarrow$
+LATCH $\rightarrow$ BF $\rightarrow$ OUT), más 1 ciclo de captura por cada
+bin de entrada (1024 en total).
+
+\begin{landscape}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    > = {Stealth[length=3pt]},
+    state/.style = {draw, rounded corners=4pt,
+                    minimum width=2.4cm, minimum height=0.8cm,
+                    align=center, font=\small},
+    trans/.style = {->, thick, font=\footnotesize}
+]
+
+    % ---- Estados ----
+    \node[state, fill=black!5] (cap) at (0,0)     {S\_CAPTURE\\captura 1024 bins\\$Z[k] \rightarrow$ zmem};
+    \node[state]             (set) at (3.5,-2)    {S\_SET\\direcciones RAM\\+ twiddle ROM};
+    \node[state]             (wait) at (3.5,-4)   {S\_WAIT\\1 ciclo latencia\\RAM/ROM};
+    \node[state]             (latch) at (3.5,-6)  {S\_LATCH\\registra $X_e$, $X_o$, $W$\\dispara butterfly};
+    \node[state]             (bf) at (3.5,-8)     {S\_BF\\butterfly\_en=1\\1 ciclo};
+    \node[state]             (out) at (7,-6)      {S\_OUT\\$g\_valid=1$\\$z_1 = X[k]$\\decimación: $k+2$};
+    \node[state, fill=black!5] (done) at (7,-2)   {S\_DONE\\retorno a\\S\_CAPTURE};
+
+    % ---- Transiciones ----
+    \draw[trans] (cap) -- node[above, sloped] {\texttt{fft\_done}} (set);
+    \draw[trans] (set) -- node[right] {} (wait);
+    \draw[trans] (wait) -- node[right] {} (latch);
+    \draw[trans] (latch) -- node[right] {} (bf);
+    \draw[trans] (bf) -- node[below, sloped] {} (out);
+
+    \draw[trans] (out) -- node[right, pos=0.5, align=center] {$k < 1022$\\siguiente bin par} (set);
+    \draw[trans] (out.east) -- ++(0.8,0) |- node[near start, right, align=center] {$k = 1022$\\último bin} (done.east);
+    \draw[trans] (done) -- node[above, sloped, align=center] {1 ciclo} (cap);
+
+    % ---- Anotación de latencia total ----
+    \node[font=\footnotesize\itshape, text=black!60] at (5.5,-1.2)
+        {Latencia total: $1024 + 512\times5 \approx 3584$ ciclos};
+
+\end{tikzpicture}
+\caption{Máquina de estados de \texttt{rfft\_recombine}. La fase de captura
+         (S\_CAPTURE) almacena los 1024 bins complejos $Z[k]$ en la memoria
+         interna \texttt{zmem}. La fase de procesamiento itera sobre los bins
+         pares ($k=0,2,\ldots,1022$) con 5 ciclos por bin: SET (direcciones),
+         WAIT (latencia BSRAM), LATCH (registro de operandos + disparo del
+         butterfly), BF (cómputo del butterfly), OUT (emisión de $X[k]$).}
+\label{fig:recomb_fsm}
+\end{figure}
+\end{landscape}
+
+% ------------------------------------------------------------
+\section{Detalle de Cada Módulo}
+
+\subsection{\texttt{rfft\_recombine} — Recombinación RFFT}
+
+Implementa las ecuaciones clásicas de desempaquetado del espectro real a
+partir de la FFT compleja del Bloque 4:
+
+\begin{align}
+    X_e[k] &= \tfrac{1}{2}\bigl(Z[k] + Z^*[N-k]\bigr) \\
+    X_o[k] &= -j \cdot \tfrac{1}{2}\bigl(Z[k] - Z^*[N-k]\bigr) \\
+    X[k]   &= X_e[k] + W_{2048}^{\,k} \cdot X_o[k]
+\end{align}
+
+\noindent donde $Z[k]$ es la salida del Bloque 4 (1024 bins) y $W_{2048}^k$
+proviene de la ROM \texttt{twiddles\_recomb} (1025 entradas $\times$ 32 bits).
+El butterfly del Bloque 3 se reutiliza con $e = X_e$, $o = X_o$,
+$tw = W_{2048}^k$, obteniendo $X[k]$ en la salida $z_1$ (la salida $z_2$ se
+descarta).
+
+\textbf{Decimación para el LCD:} El espectro real tiene 1025 bins únicos
+($0\ldots f_s/2$, paso $f_s/2048 = 23.44$\,Hz). Como el LCD muestra 512
+columnas cubriendo $0\ldots24$\,kHz, se emite un bin de cada dos
+($k = 0, 2, \ldots, 1022$), resultando en 46.88\,Hz/px.
+
+\begin{table}[H]
+\centering
+\caption{Señales de \texttt{rfft\_recombine}}
+\begin{tabular}{p{3cm} p{1.6cm} p{3.5cm} p{5.5cm}}
+\toprule
+\textbf{Señal} & \textbf{Dir.} & \textbf{Tipo} & \textbf{Descripción} \\
+\midrule
+\texttt{fft\_real/imag} & in  & [15:0] signed & $Z[k]$ del Bloque 4 (Q15) \\
+\texttt{fft\_valid}     & in  & wire         & Pulso por cada bin (1024 por frame) \\
+\texttt{fft\_done}      & in  & wire         & Fin de frame del Bloque 4 \\
+\texttt{tw\_addr\_recomb}& out & reg [10:0]   & Dirección para \texttt{twiddles\_recomb} ROM \\
+\texttt{tw\_data\_recomb}& in  & wire [31:0]  & $W_{2048}^k$ desde ROM (via B4 pass-through) \\
+\texttt{g\_real/imag}   & out & reg [15:0]   & $X[k]$ real (Q15) — solo bins pares \\
+\texttt{g\_valid}       & out & reg          & Pulso por cada bin de salida (512) \\
+\texttt{g\_done}        & out & reg          & Fin de frame de recombinación \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{\texttt{spectrum\_buffer} — Buffer y CDC}
+
+Recibe el stream del \texttt{rfft\_recombine} en el dominio \texttt{clk}
+(27\,MHz), calcula la magnitud aproximada y la almacena en una RAM ping-pong
+de doble reloj. El banco publicado se conmuta en cada \texttt{g\_done} y es
+leído por \texttt{spectrum\_draw} en el dominio \texttt{clk\_pix} (40.5\,MHz).
+
+\textbf{Magnitud aproximada} (error $<12\%$ vs. $\sqrt{\cdot}$):
+\[
+\text{mag} = \max(|g_r|, |g_i|) + \tfrac{1}{2}\min(|g_r|, |g_i|)
+\]
+
+\textbf{Mecanismo CDC:}
+\begin{enumerate}[leftmargin=*]
+    \item Escritura en \texttt{clk\_sys}: \texttt{wr\_bank} selecciona el
+          banco activo (0 o 1). Al recibir \texttt{g\_done}, se invierte
+          \texttt{wr\_bank} (publica el frame) y se resetea el contador.
+    \item Lectura en \texttt{clk\_pix}: un sincronizador 2FF captura
+          \texttt{wr\_bank} desde el dominio \texttt{clk\_sys}. El display
+          lee el banco \emph{opuesto} (\texttt{rd\_bank = \textasciitilde wr\_bank\_s})
+          para evitar tearing.
+    \item \textbf{Puerta de primer frame} (\texttt{first\_done}): la BSRAM
+          arranca sin inicializar en hardware. \texttt{first\_done} se pone a 1
+          en el primer \texttt{g\_done} y mantiene la salida en negro
+          (\texttt{mag = 0}) hasta entonces.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Señales de \texttt{spectrum\_buffer}}
+\begin{tabular}{p{3cm} p{3.3cm} p{3.5cm} p{4.5cm}}
+\toprule
+\textbf{Señal} & \textbf{Dir.} & \textbf{Dominio} & \textbf{Descripción} \\
+\midrule
+\texttt{fft\_real/imag} & in  & \texttt{clk\_sys} & $g\_real/imag$ desde recombinación \\
+\texttt{fft\_valid/done}& in  & \texttt{clk\_sys} & Handshake desde recombinación \\
+\texttt{rd\_bin}        & in  & \texttt{clk\_pix} & Dirección de bin desde \texttt{spectrum\_draw} \\
+\texttt{rd\_mag}        & out & \texttt{clk\_pix} & Magnitud del bin (0 si \texttt{first\_done}=0) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{\texttt{spectrum\_draw} — Render del Espectro}
+
+Genera el valor de píxel RGB (blanco/negro) para cada coordenada $(x,y)$
+del LCD 800$\times$480. Compensa la latencia de 1 ciclo de la BSRAM con
+registros de pipeline (\texttt{xq}, \texttt{yq}).
+
+\textbf{Layout de pantalla:}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Área de barras:} $x \in [64, 575]$ (512 columnas).
+          Bin = $x - 64$. Altura = $\text{mag} \gg \texttt{MAG\_SHIFT}$
+          (shift=7, máximo 383 px).
+    \item \textbf{Eje Y:} $x = 63$, $y \in [36, 420]$, ticks cada 64 px.
+    \item \textbf{Eje X:} $y = 420$, $x \in [63, 576]$, ticks cada 64 px
+          (3\,kHz/div).
+    \item \textbf{Etiquetas:} fuente 5$\times$7 pixeles con dígitos
+          0\,kHz, 3\,kHz, \ldots, 24\,kHz bajo el eje X.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Parámetros de \texttt{spectrum\_draw}}
+\begin{tabular}{p{2.5cm} p{2cm} p{5cm} p{3.5cm}}
+\toprule
+\textbf{Parámetro} & \textbf{Valor} & \textbf{Significado} & \textbf{Uso} \\
+\midrule
+\texttt{BINS}      & 512  & Número de bins (columnas) & Ancho del área de barras \\
+\texttt{X0}        & 64   & Columna del primer bin    & Origen del área \\
+\texttt{Y\_AXIS}   & 420  & Fila del eje X horizontal & Base de las barras \\
+\texttt{MAG\_SHIFT} & 7    & Desplazamiento de magnitud & $1\,\text{px} = 128\,\text{LSB}$ \\
+\texttt{LBL\_Y0}   & 430  & Fila superior de etiquetas & Rótulos de frecuencia \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{\texttt{block5\_lcd\_drawer} — Top Wrapper}
+
+Integra \texttt{spectrum\_buffer} y \texttt{spectrum\_draw} en un único
+módulo instanciable desde \texttt{rfft\_scope\_top}. Expone la frontera
+entre los dos dominios de reloj:
+
+\begin{verbatim}
+block5_lcd_drawer
+  +-- spectrum_buffer  (clk_sys)
+  |     escritura: g_real/imag/valid/done
+  |     CDC: wr_bank -> 2FF sync -> rd_bank
+  +-- spectrum_draw    (clk_pix)
+        lectura: rd_bin -> rd_mag
+        salida: lcd_data[23:0]
+\end{verbatim}
+
+% ------------------------------------------------------------
+\section{Diagrama de Dominios de Reloj}
+
+La Figura~\ref{fig:clock_domains} muestra la separación de dominios y el
+punto exacto del CDC en el pipeline del Bloque 5.
+
+\begin{landscape}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance = 6mm and 8mm,
+    dmn/.style = {draw, dashed, rounded corners=6pt, inner sep=5mm,
+                  font=\small\bfseries},
+]
+
+    % Dominio clk (27 MHz)
+    \node[dmn, fill=green!5, draw=green!50!black,
+          label={[green!50!black]above:\textbf{clk — 27\,MHz (H11)}}] (dclk) {
+        \begin{tikzpicture}[node distance=4mm and 4mm]
+            \node[box, fill=white] (b1) {B1: UART\\+ pack};
+            \node[box, fill=white, right=of b1] (b2) {B2: bit-reverse};
+            \node[box, fill=white, right=of b2] (b4) {B4: FFT core\\(+ B3 twiddle ROM)};
+            \node[boxw, fill=white, right=of b4] (rec) {B5a: rfft\_recombine};
+            \node[box, fill=white, right=of rec] (sbw) {B5b: spectrum\_buffer\\(puerto escritura)};
+            \draw[arr] (b1) -- (b2);
+            \draw[arr] (b2) -- (b4);
+            \draw[arr] (b4) -- (rec);
+            \draw[arr] (rec) -- (sbw);
+        \end{tikzpicture}
+    };
+
+    % Dominio clk_pix (40.5 MHz)
+    \node[dmn, fill=blue!5, draw=blue!50!black, below=12mm of dclk,
+          label={[blue!50!black]above:\textbf{clk\_pix — 40.5\,MHz (PLL)}}] (dpix) {
+        \begin{tikzpicture}[node distance=4mm and 4mm]
+            \node[box, fill=white] (sbr) {B5b: spectrum\_buffer\\(puerto lectura)};
+            \node[boxw, fill=white, right=of sbr] (sd) {B5b: spectrum\_draw};
+            \node[box, fill=white, right=of sd] (lcd) {lcd\_ctrl\\800$\times$480};
+            \draw[arr] (sbr) -- (sd);
+            \draw[arr] (sd) -- (lcd);
+        \end{tikzpicture}
+    };
+
+    % Conexión CDC
+    \draw[arrd, red!70, very thick] (dclk.south) -- (dpix.north)
+        node[midway, right=4mm, font=\footnotesize\ttfamily,
+             text=red!70, align=center] {
+            wr\_bank $\rightarrow$ 2FF sync $\rightarrow$ rd\_bank\\
+            first\_done gate (negro $\rightarrow$ datos)
+        };
+
+\end{tikzpicture}
+\caption{Separación de dominios de reloj en el pipeline RFFT. Todo el
+         datapath (B1--B4) y la recombinación (B5a) operan en \texttt{clk}
+         (27\,MHz). El dibujo en LCD (B5b) opera en \texttt{clk\_pix}
+         (40.5\,MHz). El \texttt{spectrum\_buffer} actúa como frontera CDC
+         con RAM ping-pong de doble reloj y sincronizador 2FF.}
+\label{fig:clock_domains}
+\end{figure}
+\end{landscape}
+
+% ------------------------------------------------------------
+\section{Flujo de Datos}
+
+La Tabla~\ref{tab:dataflow} resume el flujo de datos a través del Bloque 5
+para un frame completo de 2048 muestras reales de entrada (equivalentes a
+1024 bins complejos del Bloque 4 y 512 bins reales de salida al LCD).
+
+\begin{table}[H]
+\centering
+\caption{Flujo de datos del Bloque 5}
+\label{tab:dataflow}
+\begin{tabular}{p{3cm} p{2cm} p{3cm} p{5cm}}
+\toprule
+\textbf{Etapa} & \textbf{Ciclos} & \textbf{Dominio} & \textbf{Acción} \\
+\midrule
+Captura $Z[k]$      & 1024 & \texttt{clk}     & 1024 bins complejos $\rightarrow$ \texttt{zmem} \\
+Recombinación       & $\approx$2560 & \texttt{clk} & 512 bins pares, 5 ciclos/bin \\
+Magnitud + buffer   & 512 escrituras & \texttt{clk}  & $\text{mag} = \max + \min/2$ $\rightarrow$ RAM \\
+Publicación de banco& 1 ciclo & \texttt{clk}     & \texttt{wr\_bank} $\leftarrow$ \texttt{\textasciitilde wr\_bank} \\
+Sincronización CDC  & 2 ciclos & \texttt{clk\_pix}& 2FF sync de \texttt{wr\_bank} + \texttt{first\_done} \\
+Render LCD          & 800$\times$480 & \texttt{clk\_pix} & Barras + ejes + etiquetas $\rightarrow$ RGB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\section{Conexión en el Top-Level}
+
+En \texttt{rfft\_scope\_top.v}, el Bloque 5 se conecta en dos etapas:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Recombinación} (\texttt{rfft\_recombine}): recibe
+          \texttt{fft\_*} del Bloque 4 y el puerto \texttt{tw\_addr/data\_recomb}
+          (pass-through de la twiddle ROM del Bloque 3 a través del Bloque 4).
+    \item \textbf{Drawer} (\texttt{block5\_lcd\_drawer}): recibe
+          \texttt{g\_*} de la recombinación en \texttt{clk\_sys} y las
+          coordenadas \texttt{lcd\_xpos/ypos} del \texttt{lcd\_ctrl} en
+          \texttt{clk\_pix}. Entrega \texttt{lcd\_data[23:0]} al controlador LCD.
+\end{enumerate}
+
+Nótese que las señales \texttt{g\_real/imag/valid/done} de la recombinación
+usan los mismos nombres (\texttt{fft\_*}) en la interfaz del
+\texttt{block5\_lcd\_drawer} — esto es intencional: el drawer fue diseñado
+originalmente para conectarse directo al Bloque 4, y la recombinación se
+interpuso después manteniendo compatibilidad de interfaz.
+
+\end{document}
